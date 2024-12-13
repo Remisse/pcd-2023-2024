@@ -1,14 +1,18 @@
 package pcd.lab04.ex;
 
-public class Ponger extends Thread {
-	
-	public Ponger() {
-	}	
-	
+import java.util.concurrent.Semaphore;
+
+public class Ponger extends BaseWorker {
+	public Ponger(final Semaphore hasPinged, final Semaphore hasPonged) {
+		super(hasPinged, hasPonged);
+	}
+
 	public void run() {
 		while (true) {
 			try {
+				hasPinged.acquire();
 				System.out.println("pong!");
+				hasPonged.release();
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}

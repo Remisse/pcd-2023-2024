@@ -2,9 +2,9 @@ package pcd.ass01.simtrafficexamples.version0;
 
 import java.util.List;
 
-import pcd.ass01.simengineseq.version0.AbstractAgent;
-import pcd.ass01.simengineseq.version0.AbstractEnvironment;
-import pcd.ass01.simengineseq.version0.SimulationListener;
+import pcd.ass01.simseq.version0.AbstractAgent;
+import pcd.ass01.simseq.version0.AbstractEnvironment;
+import pcd.ass01.simseq.version0.SimulationListener;
 import pcd.ass01.simtrafficbase.version0.*;
 
 /**

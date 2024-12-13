@@ -4,7 +4,10 @@ import java.util.concurrent.CompletableFuture;
 public class Test1_basic {
 
 	public static void main(String[] args) {
-
+		// CompletableFuture non è altro che una Promise, ovvero chi la crea può
+		// settarne il valore una volta completata la computazione e restituirla
+		// nel frattempo come Future.
+		// Nell'assignment non è richiesto di usarli.
 		CompletableFuture<Void> cf = CompletableFuture.runAsync(() -> {
 			log("doing.");
 			waitFor(500);

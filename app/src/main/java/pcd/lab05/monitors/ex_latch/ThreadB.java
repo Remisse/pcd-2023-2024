@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class ThreadB extends Thread {
 
-	private Latch latch;
+	private final Latch latch;
 	
 	public ThreadB(String name, Latch latch) {
 		super(name);

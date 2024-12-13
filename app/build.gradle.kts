@@ -30,7 +30,24 @@ dependencies {
     implementation("io.vertx:vertx-web-client:4.5.7")
        
     /* module 2.2 -- RxJava */
-    implementation("io.reactivex.rxjava3:rxjava:3.1.8")   
+    implementation("io.reactivex.rxjava3:rxjava:3.1.8")
+
+    /* module 3.1 - actors - akka*/
+    implementation(platform("com.typesafe.akka:akka-bom_2.13:2.8.2"))
+    implementation("com.typesafe.akka:akka-actor-typed_2.13")
+    testImplementation("com.typesafe.akka:akka-actor-testkit-typed_2.13")
+
+    /* module 4.2 */
+    implementation("com.rabbitmq:amqp-client:5.17.0")
+
+    /* for single assignment */
+    implementation("org.apache.pdfbox:pdfbox:2.0.29")
+    implementation("org.apache.pdfbox:preflight:2.0.29")
+
+    /* logging framework SLF4J */
+    implementation("org.slf4j:slf4j-api:2.0.7")
+    // testImplementation "org.slf4j:slf4j-reload4j:2.0.7"
+    implementation("org.slf4j:slf4j-simple:2.0.7")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

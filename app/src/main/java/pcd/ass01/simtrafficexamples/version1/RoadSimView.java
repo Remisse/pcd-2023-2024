@@ -6,7 +6,7 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import pcd.ass01.simengineseq.version1.*;
+import pcd.ass01.simseq.version1.*;
 import pcd.ass01.simtrafficbase.version1.*;
 
 import java.awt.*;

@@ -2,7 +2,7 @@ package pcd.ass01.simtrafficexamples.version0;
 
 import java.util.Random;
 
-import pcd.ass01.simengineseq.version0.AbstractSimulation;
+import pcd.ass01.simseq.version0.AbstractSimulation;
 import pcd.ass01.simtrafficbase.version0.CarAgent;
 import pcd.ass01.simtrafficbase.version0.CarAgentExtended;
 import pcd.ass01.simtrafficbase.version0.P2d;

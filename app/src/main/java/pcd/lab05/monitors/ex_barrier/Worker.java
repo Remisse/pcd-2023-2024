@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Worker extends Thread {
 
-	private Barrier barrier;
+	private final Barrier barrier;
 	
 	public Worker(String name, Barrier barrier) {
 		super(name);
