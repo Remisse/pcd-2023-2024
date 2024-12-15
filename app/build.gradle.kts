@@ -40,6 +40,9 @@ dependencies {
     /* module 4.2 */
     implementation("com.rabbitmq:amqp-client:5.17.0")
 
+    // https://mvnrepository.com/artifact/org.jsoup/jsoup
+    implementation("org.jsoup:jsoup:1.18.3")
+
     /* for single assignment */
     implementation("org.apache.pdfbox:pdfbox:2.0.29")
     implementation("org.apache.pdfbox:preflight:2.0.29")
