@@ -107,9 +107,9 @@ public class PdfCounterControllerImpl implements PdfCounterController {
             state.update(ComputationStateType.SUSPENDING);
             debugLog("SUSPENDING");
             suspendFlag.suspend();
+            state.update(ComputationStateType.SUSPENDED);
+            debugLog("SUSPENDED");
         });
-        state.update(ComputationStateType.SUSPENDED);
-        debugLog("SUSPENDED");
     }
 
     private void resumeComputation() {
