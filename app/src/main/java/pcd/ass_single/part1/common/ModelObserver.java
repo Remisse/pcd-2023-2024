@@ -1,9 +1,9 @@
 package pcd.ass_single.part1.common;
 
 public interface ModelObserver {
-    void notifyPendingPdfsCount(int count);
+    void notifyTotalPdfsCount(int count);
 
-    void notifyScannedPdfsCount(int count);
+    void notifyParsedPdfsCount(int count);
 
-    void notifyRelevantPdfsCount(int count);
+    void notifyFoundPdfsCount(int count);
 }

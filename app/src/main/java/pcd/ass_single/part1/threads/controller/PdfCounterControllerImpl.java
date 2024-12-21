@@ -1,13 +1,13 @@
 package pcd.ass_single.part1.threads.controller;
 
+import com.google.common.base.Strings;
 import pcd.ass_single.part1.common.Directory;
-import pcd.ass_single.part1.common.Ops;
+import pcd.ass_single.part1.common.Logging;
+import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.threads.model.PdfCounterModel;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
@@ -15,10 +15,12 @@ import java.util.stream.IntStream;
 
 public class PdfCounterControllerImpl implements PdfCounterController {
     private final PdfCounterModel model;
-    private Directory searchDirectory = new Directory(new File(".").toURI());
-    private String word = "";
+    private Directory searchDirectory = new Directory(".");
+    private String searchTerm = "";
     private final int threadCount;
     private CountDownLatch latch;
+    private AtomicBoolean stopFlag;
+    private SuspendFlag suspendFlag;
     private final ComputationState state = new ComputationState(ComputationStateType.IDLE);
 
     public PdfCounterControllerImpl(final PdfCounterModel m, final int threadCount) {
@@ -28,12 +30,15 @@ public class PdfCounterControllerImpl implements PdfCounterController {
 
     @Override
     public void setDirectory(Directory dir) {
-        searchDirectory = dir;
+        searchDirectory = Objects.requireNonNull(dir);
     }
 
     @Override
-    public void setWord(String word) {
-        this.word = word;
+    public void setSearchTerm(String term) {
+        if (Strings.isNullOrEmpty(term)) {
+            throw new IllegalArgumentException("Empty search term");
+        }
+        this.searchTerm = term;
     }
 
     @Override
@@ -51,7 +56,7 @@ public class PdfCounterControllerImpl implements PdfCounterController {
 
     private void startComputation() {
         final var canContinue = new AtomicBoolean(false);
-        state.equalsThenAct(ComputationStateType.IDLE, () -> {
+        state.compareThenAct(Set.of(ComputationStateType.IDLE), () -> {
             state.update(ComputationStateType.STARTING);
             canContinue.set(true);
         });
@@ -59,6 +64,65 @@ public class PdfCounterControllerImpl implements PdfCounterController {
             return;
         }
 
+        debugLog("STARTING");
+        model.resetAll();
+
+        latch = new CountDownLatch(threadCount);
+        stopFlag = new AtomicBoolean(false);
+        suspendFlag = new SuspendFlag();
+        final List<Directory> allDirectories = getAllDirectoriesRecursively(searchDirectory);
+        final List<File> allPdfs = getAllPdfs(allDirectories);
+        final Pattern regex = Parsing.createRegexOutOfSearchTerm(searchTerm);
+        IntStream.range(0, threadCount)
+                .mapToObj(i -> {
+                    int myStart = (allPdfs.size() * i) / threadCount;
+                    int myEnd = (allPdfs.size() * (i + 1)) / threadCount;
+                    return new PdfCounterAgent(allPdfs.subList(myStart, myEnd), regex, model, latch, stopFlag, suspendFlag);
+                })
+                .forEach(Thread::start);
+        state.update(ComputationStateType.RUNNING);
+        debugLog("RUNNING");
+
+        try {
+            latch.await();
+            state.update(ComputationStateType.IDLE);
+            debugLog("IDLE");
+            model.notifyEnd();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void stopComputation() {
+        state.compareThenAct(Set.of(ComputationStateType.RUNNING, ComputationStateType.SUSPENDED), () ->  {
+            state.update(ComputationStateType.STOPPING);
+            debugLog("STOPPING");
+            stopFlag.set(true);
+            suspendFlag.resume();
+        });
+    }
+
+    private void suspendComputation() {
+        state.compareThenAct(Set.of(ComputationStateType.RUNNING), () -> {
+            state.update(ComputationStateType.SUSPENDING);
+            debugLog("SUSPENDING");
+            suspendFlag.suspend();
+        });
+        state.update(ComputationStateType.SUSPENDED);
+        debugLog("SUSPENDED");
+    }
+
+    private void resumeComputation() {
+        state.compareThenAct(Set.of(ComputationStateType.SUSPENDED), () -> {
+            state.update(ComputationStateType.RESUMING);
+            debugLog("RESUMING");
+            suspendFlag.resume();
+            state.update(ComputationStateType.RUNNING);
+            debugLog("RUNNING");
+        });
+    }
+
+    private static List<Directory> getAllDirectoriesRecursively(Directory searchDirectory) {
         var allDirectories = new ArrayList<Directory>();
         var pending = new Stack<Directory>();
         pending.addAll(searchDirectory.nestedDirectories());
@@ -67,39 +131,22 @@ public class PdfCounterControllerImpl implements PdfCounterController {
             allDirectories.add(current);
             var nested = current.nestedDirectories();
             pending.addAll(nested);
-            model.pdfsFoundCounter().increment(nested.size());
         }
+        return allDirectories;
+    }
 
-        final List<File> allPdfs = allDirectories.stream()
-                .flatMap(d -> d.filesOfType(".pdf").stream())
-                .toList();
-        final Pattern regex = Ops.makeWordRegex(word);
-        final int actualThreadCount = threadCount + 1;
-        latch = new CountDownLatch(actualThreadCount);
-        IntStream.range(0, actualThreadCount)
-                .mapToObj(i -> {
-                    var myStart = (allPdfs.size() * i) / actualThreadCount;
-                    var myEnd = (allPdfs.size() * (i + 1)) / actualThreadCount;
-                    return new PdfCounterAgent(allPdfs.subList(myStart, myEnd), regex, model, latch, state);
+    private List<File> getAllPdfs(List<Directory> dirs) {
+        return dirs
+                .stream()
+                .flatMap(d -> {
+                    var list = d.filesOfType("pdf");
+                    model.totalCounter().increment(list.size());
+                    return list.stream();
                 })
-                .forEach(PdfCounterAgent::start);
-        state.update(ComputationStateType.RUNNING);
-        try {
-            latch.await();
-            state.update(ComputationStateType.IDLE);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+                .toList();
     }
 
-    private void stopComputation() {
-        state.equalsThenAct(ComputationStateType.RUNNING, () -> state.update(ComputationStateType.STOPPING));
-    }
-
-    private void suspendComputation() {
-        state.equalsThenAct(ComputationStateType.RUNNING, () -> state.update(ComputationStateType.SUSPENDING));
-    }
-
-    private void resumeComputation() {
+    private static void debugLog(String msg) {
+        Logging.debugLog(Thread.currentThread().getName(), msg);
     }
 }

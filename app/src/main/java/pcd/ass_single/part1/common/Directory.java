@@ -1,36 +1,36 @@
 package pcd.ass_single.part1.common;
 
 import java.io.File;
-import java.net.URI;
 import java.util.*;
 
 public class Directory {
     private final File asFile;
 
-    public Directory(URI uri) {
-        asFile = new File(uri);
+    public Directory(String path) {
+        asFile = new File(path);
         if (!asFile.isDirectory()) {
             throw new IllegalArgumentException("Not a directory");
         }
     }
 
     public List<Directory> nestedDirectories() {
-        String[] nestedDirs = asFile.list((f, unused) -> f.isDirectory());
-        Objects.requireNonNull(nestedDirs);
+        File[] nestedDirs = asFile.listFiles();
+        if (nestedDirs == null) {
+            return Collections.emptyList();
+        }
         return Arrays.stream(nestedDirs)
-                .map(URI::create)
-                .map(Directory::new)
+                .filter(File::isDirectory)
+                .map(f -> new Directory(f.getAbsolutePath()))
                 .toList();
     }
 
-    public List<Directory> nestedDirectoriesRecursive() {
-    }
-
     public List<File> filesOfType(final String type) {
-        String[] pdfs = asFile.list((f, n) -> f.isFile() && n.endsWith("." + type));
-        Objects.requireNonNull(pdfs);
+        File[] pdfs = asFile.listFiles();
+        if (pdfs == null) {
+            return Collections.emptyList();
+        }
         return Arrays.stream(pdfs)
-                .map(File::new)
+                .filter(f -> f.isFile() && f.getName().endsWith("." + type))
                 .toList();
     }
 }

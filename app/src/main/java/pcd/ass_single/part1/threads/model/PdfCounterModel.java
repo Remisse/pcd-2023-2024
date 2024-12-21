@@ -1,9 +1,18 @@
 package pcd.ass_single.part1.threads.model;
 
-public interface PdfCounterModel {
-    ObservableCounter pdfsFoundCounter();
+import pcd.ass_single.part1.common.ModelObserver;
+import pcd.ass_single.part1.common.Observable;
 
-    ObservableCounter pdfsParsedCounter();
+public interface PdfCounterModel extends Observable {
+    Counter totalCounter();
 
-    ObservableCounter pdfsMatchingCounter();
+    Counter parsedCounter();
+
+    Counter matchingCounter();
+
+    void notifyEnd();
+
+    void resetAll();
+
+    void addObserver(ModelObserver observer);
 }

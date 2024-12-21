@@ -1,5 +1,7 @@
 package pcd.ass_single.part1.threads.controller;
 
+import java.util.Set;
+
 class ComputationState {
     private ComputationStateType current;
 
@@ -11,12 +13,8 @@ class ComputationState {
         current = newState;
     }
 
-    public synchronized ComputationStateType get() {
-        return current;
-    }
-
-    public synchronized void equalsThenAct(ComputationStateType o, Runnable onEquals) {
-        while (current == o) {
+    public synchronized void compareThenAct(Set<ComputationStateType> toCompare, Runnable onEquals) {
+        while (toCompare.contains(current)) {
             onEquals.run();
         }
     }

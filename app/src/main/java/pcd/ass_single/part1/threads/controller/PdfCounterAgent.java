@@ -1,75 +1,67 @@
 package pcd.ass_single.part1.threads.controller;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
-import org.apache.pdfbox.text.PDFTextStripper;
-import pcd.ass_single.part1.common.Ops;
+import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.threads.model.PdfCounterModel;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
+
+import static pcd.ass_single.part1.common.Logging.debugLog;
 
 class PdfCounterAgent extends Thread {
     private final List<File> pdfs;
     private final Pattern regex;
     private final CountDownLatch latch;
+    private final AtomicBoolean stopFlag;
+    private final SuspendFlag suspendFlag;
     private final PdfCounterModel model;
-    private final ComputationState state;
 
     public PdfCounterAgent(final List<File> pdfs, final Pattern regex, final PdfCounterModel model,
-                           final CountDownLatch latch, final ComputationState state) {
+                           final CountDownLatch latch, final AtomicBoolean stopFlag, final SuspendFlag suspendFlag) {
         this.pdfs = pdfs;
         this.regex = regex;
         this.latch = latch;
+        this.stopFlag = stopFlag;
+        this.suspendFlag = suspendFlag;
         this.model = model;
-        this.state = state;
     }
 
     @Override
     public void run() {
         try {
             for (File pdf : pdfs) {
+                suspendFlag.tryAwait();
                 if (shouldStop()) {
                     break;
                 }
-                PDDocument document = PDDocument.load(pdf);
-                AccessPermission ap = document.getCurrentAccessPermission();
-                if (!ap.canExtractContent()) {
-                    throw new IOException("You do not have permission to extract text");
+
+                PDDocument document = Parsing.loadPdf(pdf);
+                if (Parsing.doesPdfSatisfyRegex(document, regex)) {
+                    model.matchingCounter().increment(1);
                 }
-                PDFTextStripper stripper = new PDFTextStripper();
-                // This example uses sorting, but in some cases it is more useful to switch it off,
-                // e.g. in some files with columns where the PDF content stream respects the
-                // column order.
-                stripper.setSortByPosition(true);
-                var wordFound = false;
-                for (int p = 1; p <= document.getNumberOfPages() && !wordFound; ++p) {
-                    // Set the page interval to extract. If you don't, then all pages would be extracted.
-                    stripper.setStartPage(p);
-                    stripper.setEndPage(p);
-                    // let the magic happen
-                    String text = stripper.getText(document);
-                    if (Ops.findWord(text, regex)) {
-                        model.pdfsMatchingCounter().increment(1);
-                        wordFound = true;
-                    }
-                    // If the extracted text is empty or gibberish, please try extracting text
-                    // with Adobe Reader first before asking for help. Also read the FAQ
-                    // on the website:
-                    // https://pdfbox.apache.org/2.0/faq.html#text-extraction
-                }
-                model.pdfsParsedCounter().increment(1);
-                document.close();
+                closeDocument(document);
             }
+            debugLog(Thread.currentThread().getName(), "finished");
+        } catch (IllegalStateException e) {
+            debugLog(Thread.currentThread().getName(), "" + e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
             latch.countDown();
-        } catch (IOException ignored) {
         }
     }
 
+    private void closeDocument(PDDocument doc) throws IOException {
+        model.parsedCounter().increment(1);
+        doc.close();
+    }
+
     private boolean shouldStop() {
-        return state.get() == ComputationStateType.STOPPING;
+        return stopFlag.getAcquire();
     }
 }

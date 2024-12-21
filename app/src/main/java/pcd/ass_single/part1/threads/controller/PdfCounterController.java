@@ -7,5 +7,5 @@ public interface PdfCounterController {
 
     void setDirectory(Directory dir);
 
-    void setWord(String word);
+    void setSearchTerm(String word);
 }
