@@ -1,6 +1,6 @@
 package pcd.ass_single.part1.threads.controller;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
+import pcd.ass_single.part1.common.Logging;
 import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.threads.model.PdfCounterModel;
 
@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
-
-import static pcd.ass_single.part1.common.Logging.debugLog;
 
 class PdfCounterAgent extends Thread {
     private final List<File> pdfs;
@@ -33,35 +31,38 @@ class PdfCounterAgent extends Thread {
 
     @Override
     public void run() {
-        try {
-            for (File pdf : pdfs) {
-                suspendFlag.tryAwait();
-                if (shouldStop()) {
-                    break;
-                }
-
-                PDDocument document = Parsing.loadPdf(pdf);
-                if (Parsing.doesPdfSatisfyRegex(document, regex)) {
-                    model.matchingCounter().increment(1);
-                }
-                closeDocument(document);
+        for (File pdf : pdfs) {
+            suspendFlag.tryAwait();
+            if (shouldStop()) {
+                break;
             }
-            debugLog(Thread.currentThread().getName(), "finished");
-        } catch (IllegalStateException e) {
-            debugLog(Thread.currentThread().getName(), "" + e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            latch.countDown();
-        }
-    }
 
-    private void closeDocument(PDDocument doc) throws IOException {
-        model.parsedCounter().increment(1);
-        doc.close();
+            try {
+                Parsing.PDFWrapper wrapper = Parsing.loadPdf(pdf);
+                if (wrapper.isError()) {
+                    debugLog(wrapper.error().orElseThrow());
+                } else {
+                    var doc = wrapper.document().orElseThrow();
+                    if (Parsing.doesPdfSatisfyRegex(doc, regex)) {
+                        model.matchingCounter().increment(1);
+                    }
+                    doc.close();
+                }
+            } catch (IOException e) {
+                debugLog(e.toString());
+            }
+
+            model.parsedCounter().increment(1);
+        }
+        latch.countDown();
+        debugLog("finished");
     }
 
     private boolean shouldStop() {
         return stopFlag.getAcquire();
+    }
+
+    private static void debugLog(String msg) {
+        Logging.debugLog(Thread.currentThread().getName(), msg);
     }
 }

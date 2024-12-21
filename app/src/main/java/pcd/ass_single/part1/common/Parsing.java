@@ -6,19 +6,29 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Parsing {
+    public record PDFWrapper(Optional<PDDocument> document, Optional<String> error) {
+        public boolean isError() {
+            return error.isPresent();
+        }
+    }
+
     private Parsing() {}
 
-    public static PDDocument loadPdf(File pdf) throws IOException {
+    public static PDFWrapper loadPdf(File pdf) throws IOException {
         PDDocument document = PDDocument.load(pdf);
         AccessPermission ap = document.getCurrentAccessPermission();
         if (!ap.canExtractContent()) {
             document.close();
-            throw new IllegalStateException("Insufficient permissions to parse \"" + pdf.getAbsolutePath() + " \"");
+            return new PDFWrapper(
+                    Optional.empty(),
+                    Optional.of("Insufficient permissions to parse \"" + pdf.getName() + "\"")
+            );
         }
-        return document;
+        return new PDFWrapper(Optional.of(document), Optional.empty());
     }
 
     public static boolean doesPdfSatisfyRegex(PDDocument pdf, Pattern regex) throws IOException {
