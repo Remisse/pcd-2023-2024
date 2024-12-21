@@ -1,6 +1,7 @@
 package pcd.ass_single.part1.threads.view.gui;
 
 import pcd.ass_single.part1.common.Directory;
+import pcd.ass_single.part1.common.Logging;
 import pcd.ass_single.part1.common.ModelObserver;
 import pcd.ass_single.part1.threads.controller.PdfCounterController;
 import pcd.ass_single.part1.threads.view.PdfCounterView;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class PdfCounterSwingView extends JFrame implements PdfCounterView, ActionListener, ModelObserver {
     private final PdfCounterController controller;
-    private final JTextField pendingPdfsCount;
+    private final JTextField totalPdfsCount;
     private final JTextField parsedPdfsCount;
     private final JTextField foundPdfsCount;
     private final JTextField directoryField;
@@ -32,8 +33,8 @@ public class PdfCounterSwingView extends JFrame implements PdfCounterView, Actio
         JPanel panel = new JPanel(new GridLayout(10, 10));
         add(panel);
 
-        panel.add(new JLabel("Pending"));
-        pendingPdfsCount = createNonEditableField(panel, "0");
+        panel.add(new JLabel("Total"));
+        totalPdfsCount = createNonEditableField(panel, "0");
         panel.add(new JLabel("Parsed"));
         parsedPdfsCount = createNonEditableField(panel, "0");
         panel.add(new JLabel("Found"));
@@ -79,12 +80,13 @@ public class PdfCounterSwingView extends JFrame implements PdfCounterView, Actio
         try {
             controller.processEvent(ev.getActionCommand());
         } catch (Exception ex) {
+            Logging.debugLog(ex.toString());
         }
     }
 
     @Override
     public void notifyTotalPdfsCount(int count) {
-        updateField(pendingPdfsCount, "" + count);
+        updateField(totalPdfsCount, "" + count);
     }
 
     @Override
@@ -108,12 +110,16 @@ public class PdfCounterSwingView extends JFrame implements PdfCounterView, Actio
         try {
             SwingUtilities.invokeLater(() -> field.setText(text));
         } catch (Exception ex){
-            ex.printStackTrace();
+            Logging.debugLog(ex.toString());
         }
     }
 
     @Override
     public void display() {
         setVisible(true);
+    }
+
+    @Override
+    public void onStop() {
     }
 }

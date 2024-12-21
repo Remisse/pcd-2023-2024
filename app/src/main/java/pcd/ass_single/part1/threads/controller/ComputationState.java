@@ -18,4 +18,8 @@ class ComputationState {
             onEquals.run();
         }
     }
+
+    public synchronized ComputationStateType get() {
+        return current;
+    }
 }

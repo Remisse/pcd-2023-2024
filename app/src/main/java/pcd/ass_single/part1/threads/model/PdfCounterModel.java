@@ -10,8 +10,6 @@ public interface PdfCounterModel extends Observable {
 
     Counter matchingCounter();
 
-    void notifyEnd();
-
     void resetAll();
 
     void addObserver(ModelObserver observer);

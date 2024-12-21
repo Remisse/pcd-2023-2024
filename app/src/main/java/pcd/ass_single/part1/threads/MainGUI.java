@@ -16,6 +16,7 @@ public class MainGUI {
         var controller = new PdfCounterControllerImpl(model, Runtime.getRuntime().availableProcessors() + 1);
         var view = new PdfCounterSwingView(controller);
         model.addObserver(view);
+        controller.setView(view);
         view.display();
     }
 }

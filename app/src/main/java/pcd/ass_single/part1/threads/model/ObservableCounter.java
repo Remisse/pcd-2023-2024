@@ -2,13 +2,11 @@ package pcd.ass_single.part1.threads.model;
 
 import pcd.ass_single.part1.common.ModelObserver;
 import pcd.ass_single.part1.common.Observable;
-import scala.Int;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class ObservableCounter implements Counter, Observable {
     private int value = 0;
@@ -26,7 +24,7 @@ public class ObservableCounter implements Counter, Observable {
 
     @Override
     public synchronized void increment(int n) {
-        value += n;
+        value += ensureNumberIsPositive(n);
         notifyObservers(value);
     }
 
@@ -40,5 +38,12 @@ public class ObservableCounter implements Counter, Observable {
         for (ModelObserver obs : observers) {
             onNewValue.accept(obs, val);
         }
+    }
+
+    private static int ensureNumberIsPositive(int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException(n + " is not a positive integer.");
+        }
+        return n;
     }
 }

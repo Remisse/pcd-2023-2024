@@ -25,13 +25,6 @@ public class PdfCounterModelImpl implements PdfCounterModel {
     }
 
     @Override
-    public void notifyEnd() {
-        for (var counter : List.of(pdfsPending, pdfsParsed, pdfsFound)) {
-            counter.increment(0);
-        }
-    }
-
-    @Override
     public void resetAll() {
         for (var counter : List.of(pdfsPending, pdfsParsed, pdfsFound)) {
             counter.reset();

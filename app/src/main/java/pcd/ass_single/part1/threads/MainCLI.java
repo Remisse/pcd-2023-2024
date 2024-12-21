@@ -24,6 +24,7 @@ public class MainCLI {
         controller.setSearchTerm(args[1]);
         var view = new PdfCounterCLIView(controller);
         model.addObserver(view);
+        controller.setView(view);
         view.display();
     }
 

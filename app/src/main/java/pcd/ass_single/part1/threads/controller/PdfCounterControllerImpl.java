@@ -5,6 +5,7 @@ import pcd.ass_single.part1.common.Directory;
 import pcd.ass_single.part1.common.Logging;
 import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.threads.model.PdfCounterModel;
+import pcd.ass_single.part1.threads.view.PdfCounterView;
 
 import java.io.File;
 import java.util.*;
@@ -15,6 +16,7 @@ import java.util.stream.IntStream;
 
 public class PdfCounterControllerImpl implements PdfCounterController {
     private final PdfCounterModel model;
+    private PdfCounterView view = null;
     private Directory searchDirectory = new Directory(".");
     private String searchTerm = "";
     private final int threadCount;
@@ -24,8 +26,13 @@ public class PdfCounterControllerImpl implements PdfCounterController {
     private final ComputationState state = new ComputationState(ComputationStateType.IDLE);
 
     public PdfCounterControllerImpl(final PdfCounterModel m, final int threadCount) {
-        model = m;
+        model = Objects.requireNonNull(m);
         this.threadCount = threadCount;
+    }
+
+    @Override
+    public void setView(PdfCounterView view) {
+        this.view = Objects.requireNonNull(view);
     }
 
     @Override
@@ -55,12 +62,10 @@ public class PdfCounterControllerImpl implements PdfCounterController {
     }
 
     private void startComputation() {
-        final var canContinue = new AtomicBoolean(false);
         state.compareThenAct(Set.of(ComputationStateType.IDLE), () -> {
             state.update(ComputationStateType.STARTING);
-            canContinue.set(true);
         });
-        if (!canContinue.get()) {
+        if (state.get() != ComputationStateType.STARTING) {
             return;
         }
 
@@ -73,6 +78,10 @@ public class PdfCounterControllerImpl implements PdfCounterController {
         final List<Directory> allDirectories = getAllDirectoriesRecursively(searchDirectory);
         final List<File> allPdfs = getAllPdfs(allDirectories);
         final Pattern regex = Parsing.createRegexOutOfSearchTerm(searchTerm);
+        // Let all threads execute freely, updating the model themselves.
+        // A stepped execution like the one implemented for the first assignment would introduce performance
+        // bottlenecks, as not all threads will deal with the same amount of work and would thus have to wait for
+        // the "slowest" one to complete its step.
         IntStream.range(0, threadCount)
                 .mapToObj(i -> {
                     int myStart = (allPdfs.size() * i) / threadCount;
@@ -87,7 +96,9 @@ public class PdfCounterControllerImpl implements PdfCounterController {
             latch.await();
             state.update(ComputationStateType.IDLE);
             debugLog("IDLE");
-            model.notifyEnd();
+            if (view != null) {
+                view.onStop();
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -140,7 +151,9 @@ public class PdfCounterControllerImpl implements PdfCounterController {
                 .stream()
                 .flatMap(d -> {
                     var list = d.filesOfType("pdf");
-                    model.totalCounter().increment(list.size());
+                    if (!list.isEmpty()) {
+                        model.totalCounter().increment(list.size());
+                    }
                     return list.stream();
                 })
                 .toList();
