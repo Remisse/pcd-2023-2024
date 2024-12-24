@@ -2,7 +2,7 @@ package pcd.ass_single.part1.threads.controller;
 
 import pcd.ass_single.part1.common.Logger;
 import pcd.ass_single.part1.common.Parsing;
-import pcd.ass_single.part1.common.SuspendFlag;
+import pcd.ass_single.part1.common.Flag;
 import pcd.ass_single.part1.threads.model.PdfCounterModel;
 
 import java.io.File;
@@ -16,11 +16,11 @@ class PdfCounterAgent implements Runnable {
     private final List<File> pdfs;
     private final Pattern regex;
     private final AtomicBoolean stopFlag;
-    private final SuspendFlag suspendFlag;
+    private final Flag suspendFlag;
     private final PdfCounterModel model;
 
     public PdfCounterAgent(final List<File> pdfs, final Pattern regex, final PdfCounterModel model,
-                           final AtomicBoolean stopFlag, final SuspendFlag suspendFlag) {
+                           final AtomicBoolean stopFlag, final Flag suspendFlag) {
         this.pdfs = pdfs;
         this.regex = regex;
         this.stopFlag = stopFlag;

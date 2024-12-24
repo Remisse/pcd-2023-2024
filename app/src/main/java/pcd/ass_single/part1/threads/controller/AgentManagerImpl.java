@@ -3,7 +3,7 @@ package pcd.ass_single.part1.threads.controller;
 import pcd.ass_single.part1.common.Directory;
 import pcd.ass_single.part1.common.ModelObserver;
 import pcd.ass_single.part1.common.Parsing;
-import pcd.ass_single.part1.common.SuspendFlag;
+import pcd.ass_single.part1.common.Flag;
 import pcd.ass_single.part1.threads.model.PdfCounterModel;
 import pcd.ass_single.part1.vt.controller.AgentManager;
 
@@ -20,7 +20,7 @@ public class AgentManagerImpl implements AgentManager {
     private final int threadCount;
     private List<Thread> agents;
     private AtomicBoolean stopFlag;
-    private SuspendFlag suspendFlag;
+    private Flag suspendFlag;
 
     public AgentManagerImpl(final PdfCounterModel model, final int threadCount) {
         this.model = model;
@@ -31,7 +31,7 @@ public class AgentManagerImpl implements AgentManager {
     public void begin(Directory startingDirectory, String word) {
         model.resetAll();
         stopFlag = new AtomicBoolean(false);
-        suspendFlag = new SuspendFlag();
+        suspendFlag = new Flag();
         final List<Directory> allDirectories = getAllDirectoriesRecursively(startingDirectory);
         final List<File> allPdfs = getAllPdfs(allDirectories);
         final Pattern regex = Parsing.createRegexOutOfSearchTerm(word);
@@ -91,12 +91,12 @@ public class AgentManagerImpl implements AgentManager {
 
     @Override
     public void suspend() {
-        suspendFlag.suspend();
+        suspendFlag.setToAwait();
     }
 
     @Override
     public void resume() {
-        suspendFlag.resume();
+        suspendFlag.reset();
     }
 
     @Override
