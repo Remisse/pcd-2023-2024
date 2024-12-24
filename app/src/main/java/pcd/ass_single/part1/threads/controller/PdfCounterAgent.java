@@ -1,29 +1,28 @@
 package pcd.ass_single.part1.threads.controller;
 
-import pcd.ass_single.part1.common.Logging;
+import pcd.ass_single.part1.common.Logger;
 import pcd.ass_single.part1.common.Parsing;
+import pcd.ass_single.part1.common.SuspendFlag;
 import pcd.ass_single.part1.threads.model.PdfCounterModel;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
-class PdfCounterAgent extends Thread {
+class PdfCounterAgent implements Runnable {
+    private static final Logger LOGGER = Logger.get();
     private final List<File> pdfs;
     private final Pattern regex;
-    private final CountDownLatch latch;
     private final AtomicBoolean stopFlag;
     private final SuspendFlag suspendFlag;
     private final PdfCounterModel model;
 
     public PdfCounterAgent(final List<File> pdfs, final Pattern regex, final PdfCounterModel model,
-                           final CountDownLatch latch, final AtomicBoolean stopFlag, final SuspendFlag suspendFlag) {
+                           final AtomicBoolean stopFlag, final SuspendFlag suspendFlag) {
         this.pdfs = pdfs;
         this.regex = regex;
-        this.latch = latch;
         this.stopFlag = stopFlag;
         this.suspendFlag = suspendFlag;
         this.model = model;
@@ -54,7 +53,6 @@ class PdfCounterAgent extends Thread {
 
             model.parsedCounter().increment(1);
         }
-        latch.countDown();
         debugLog("finished");
     }
 
@@ -63,6 +61,6 @@ class PdfCounterAgent extends Thread {
     }
 
     private static void debugLog(String msg) {
-        Logging.debugLog(Thread.currentThread().getName(), msg);
+        LOGGER.debugLog(Thread.currentThread().getName(), msg);
     }
 }

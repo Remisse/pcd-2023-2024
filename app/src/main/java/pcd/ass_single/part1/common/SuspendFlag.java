@@ -1,41 +1,33 @@
-package pcd.ass_single.part1.threads.controller;
+package pcd.ass_single.part1.common;
+
+import pcd.ass_single.part1.common.lock.CloseableReentrantLock;
 
 import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
-public class SuspendFlag extends ReentrantLock {
+public class SuspendFlag extends CloseableReentrantLock {
     private boolean shouldSuspend = false;
     private final Condition condition = newCondition();
 
     public void tryAwait() {
-        try {
-            lock();
+        try (var ignored = lockAsResource()){
             while (shouldSuspend) {
                 condition.await();
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        } finally {
-            unlock();
         }
     }
 
     public void suspend() {
-        try {
-            lock();
+        try (var ignored = lockAsResource()) {
             shouldSuspend = true;
-        } finally {
-            unlock();
         }
     }
 
     public void resume() {
-        try {
-            lock();
+        try (var ignored = lockAsResource()) {
             shouldSuspend = false;
             condition.signalAll();
-        } finally {
-            unlock();
         }
     }
 }

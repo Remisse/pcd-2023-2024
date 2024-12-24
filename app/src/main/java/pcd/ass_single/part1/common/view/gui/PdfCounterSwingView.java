@@ -1,10 +1,10 @@
-package pcd.ass_single.part1.threads.view.gui;
+package pcd.ass_single.part1.common.view.gui;
 
 import pcd.ass_single.part1.common.Directory;
-import pcd.ass_single.part1.common.Logging;
+import pcd.ass_single.part1.common.Logger;
 import pcd.ass_single.part1.common.ModelObserver;
-import pcd.ass_single.part1.threads.controller.PdfCounterController;
-import pcd.ass_single.part1.threads.view.PdfCounterView;
+import pcd.ass_single.part1.common.controller.PdfCounterController;
+import pcd.ass_single.part1.common.view.PdfCounterView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,15 +13,16 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 
-public class PdfCounterSwingView extends JFrame implements PdfCounterView, ActionListener, ModelObserver {
-    private final PdfCounterController controller;
+public class PdfCounterSwingView extends JFrame implements PdfCounterView, ActionListener {
+    private static final Logger LOGGER = Logger.get();
+    private final PdfCounterController<PdfCounterView> controller;
     private final JTextField totalPdfsCount;
     private final JTextField parsedPdfsCount;
     private final JTextField foundPdfsCount;
     private final JTextField directoryField;
     private final JTextField searchTermField;
 
-    public PdfCounterSwingView(PdfCounterController controller) {
+    public PdfCounterSwingView(PdfCounterController<PdfCounterView> controller) {
         super("PDF Counter");
         this.controller = controller;
 
@@ -37,7 +38,7 @@ public class PdfCounterSwingView extends JFrame implements PdfCounterView, Actio
         totalPdfsCount = createNonEditableField(panel, "0");
         panel.add(new JLabel("Parsed"));
         parsedPdfsCount = createNonEditableField(panel, "0");
-        panel.add(new JLabel("Found"));
+        panel.add(new JLabel("Containing search term"));
         foundPdfsCount = createNonEditableField(panel, "0");
 
         panel.add(getDirectoryChooserButton());
@@ -80,7 +81,7 @@ public class PdfCounterSwingView extends JFrame implements PdfCounterView, Actio
         try {
             controller.processEvent(ev.getActionCommand());
         } catch (Exception ex) {
-            Logging.debugLog(ex.toString());
+            LOGGER.debugLog(ex.toString());
         }
     }
 
@@ -108,9 +109,9 @@ public class PdfCounterSwingView extends JFrame implements PdfCounterView, Actio
 
     private static void updateField(JTextField field, String text) {
         try {
-            SwingUtilities.invokeLater(() -> field.setText(text));
+            SwingUtilities.invokeAndWait(() -> field.setText(text));
         } catch (Exception ex){
-            Logging.debugLog(ex.toString());
+            LOGGER.debugLog(ex.toString());
         }
     }
 

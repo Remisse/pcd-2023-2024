@@ -2,10 +2,11 @@ package pcd.ass_single.part1.threads;
 
 import pcd.ass_single.part1.common.Config;
 import pcd.ass_single.part1.common.Directory;
-import pcd.ass_single.part1.common.Logging;
+import pcd.ass_single.part1.common.Logger;
+import pcd.ass_single.part1.threads.controller.AgentManagerImpl;
 import pcd.ass_single.part1.threads.controller.PdfCounterControllerImpl;
 import pcd.ass_single.part1.threads.model.PdfCounterModelImpl;
-import pcd.ass_single.part1.threads.view.cli.PdfCounterCLIView;
+import pcd.ass_single.part1.common.view.cli.PdfCounterCLIView;
 
 public class MainCLI {
     static {
@@ -19,7 +20,8 @@ public class MainCLI {
         }
 
         var model = new PdfCounterModelImpl();
-        var controller = new PdfCounterControllerImpl(model, Runtime.getRuntime().availableProcessors() + 1);
+        var agentManager = new AgentManagerImpl(model, Runtime.getRuntime().availableProcessors() + 1);
+        var controller = new PdfCounterControllerImpl(agentManager);
         controller.setDirectory(new Directory(args[0]));
         controller.setSearchTerm(args[1]);
         var view = new PdfCounterCLIView(controller);
@@ -29,7 +31,7 @@ public class MainCLI {
     }
 
     private static void usage() {
-        Logging.log("Usage: java <jar-file> <path-to-directory> <search-term>");
+        Logger.get().log("Usage: java <jar-file> <path-to-directory> <search-term>");
         System.exit(-1);
     }
 }
