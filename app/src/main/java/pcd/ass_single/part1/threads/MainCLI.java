@@ -2,7 +2,7 @@ package pcd.ass_single.part1.threads;
 
 import pcd.ass_single.part1.common.Config;
 import pcd.ass_single.part1.common.Directory;
-import pcd.ass_single.part1.common.Logger;
+import pcd.ass_single.part1.common.view.cli.CLIUtils;
 import pcd.ass_single.part1.threads.controller.AgentManagerImpl;
 import pcd.ass_single.part1.threads.controller.PdfCounterControllerImpl;
 import pcd.ass_single.part1.threads.model.PdfCounterModelImpl;
@@ -16,7 +16,7 @@ public class MainCLI {
 
     public static void main(String[] args) {
         if (args.length != 2) {
-           usage();
+           CLIUtils.usage();
         }
 
         var model = new PdfCounterModelImpl();
@@ -28,10 +28,5 @@ public class MainCLI {
         model.addObserver(view);
         controller.setView(view);
         view.display();
-    }
-
-    private static void usage() {
-        Logger.get().log("Usage: java <jar-file> <path-to-directory> <search-term>");
-        System.exit(-1);
     }
 }
