@@ -1,7 +1,7 @@
 package pcd.ass_single.part1.threads.controller;
 
 import pcd.ass_single.part1.common.*;
-import pcd.ass_single.part1.vt.controller.AgentManager;
+import pcd.ass_single.part1.common.controller.AgentManager;
 
 import java.io.File;
 import java.util.ArrayList;

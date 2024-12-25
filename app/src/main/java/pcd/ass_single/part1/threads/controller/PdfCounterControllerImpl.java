@@ -2,7 +2,7 @@ package pcd.ass_single.part1.threads.controller;
 
 import pcd.ass_single.part1.common.controller.AbstractPdfCounterController;
 import pcd.ass_single.part1.common.view.PdfCounterView;
-import pcd.ass_single.part1.vt.controller.AgentManager;
+import pcd.ass_single.part1.common.controller.AgentManager;
 
 public class PdfCounterControllerImpl extends AbstractPdfCounterController<PdfCounterView> {
     private final AgentManager agentManager;

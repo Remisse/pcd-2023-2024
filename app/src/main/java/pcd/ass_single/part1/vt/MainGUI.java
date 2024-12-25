@@ -4,7 +4,7 @@ import pcd.ass_single.part1.common.Config;
 import pcd.ass_single.part1.common.controller.PdfCounterController;
 import pcd.ass_single.part1.common.view.PdfCounterView;
 import pcd.ass_single.part1.common.view.gui.PdfCounterSwingView;
-import pcd.ass_single.part1.vt.controller.AgentManager;
+import pcd.ass_single.part1.common.controller.AgentManager;
 import pcd.ass_single.part1.vt.controller.AgentManagerImpl;
 import pcd.ass_single.part1.vt.controller.PdfCounterControllerImpl;
 import pcd.ass_single.part1.vt.model.VTModel;
