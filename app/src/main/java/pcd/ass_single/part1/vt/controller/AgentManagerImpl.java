@@ -52,15 +52,15 @@ public class AgentManagerImpl implements AgentManager {
     }
 
     private Thread scan(Directory directory) {
-        suspendFlag.tryAwait();
-        if (stopFlag.get()) {
-            return null;
-        }
         return Thread.ofVirtual()
                 .start(() -> {
                     var scannerData = agentFactory.createDirectoryScanner(directory);
                     try {
                         scannerData._1().join();
+                        suspendFlag.tryAwait();
+                        if (stopFlag.get()) {
+                            return;
+                        }
                         var future = scannerData._2();
                         if (future.isError()) {
                             LOGGER.debugLog(future.getError());
@@ -88,10 +88,6 @@ public class AgentManagerImpl implements AgentManager {
     }
 
     private void runParsers(List<File> pdfs) throws InterruptedException, ExecutionException {
-        suspendFlag.tryAwait();
-        if (stopFlag.get()) {
-            return;
-        }
         List<Tuple2<Thread, VTFuture<Boolean>>> parsers = pdfs.stream()
                 .map(pdf -> agentFactory.createPdfParser(pdf, regex))
                 .filter(Objects::nonNull)
@@ -105,6 +101,10 @@ public class AgentManagerImpl implements AgentManager {
                     LOGGER.debugLog(future.getError());
                 } else if (future.get()) {
                     found++;
+                }
+                suspendFlag.tryAwait();
+                if (stopFlag.get()) {
+                    return;
                 }
             }
             model.incrementParsed(parsers.size());

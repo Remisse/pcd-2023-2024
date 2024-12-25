@@ -7,4 +7,9 @@ public class CloseableReentrantLock extends ReentrantLock {
         lock();
         return this::unlock;
     }
+
+    public ResourceLock lockInterruptiblyAsResource() throws InterruptedException {
+        lockInterruptibly();
+        return this::unlock;
+    }
 }
