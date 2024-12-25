@@ -1,10 +1,6 @@
 package pcd.ass_single.part1.threads.controller;
 
-import pcd.ass_single.part1.common.Directory;
-import pcd.ass_single.part1.common.ModelObserver;
-import pcd.ass_single.part1.common.Parsing;
-import pcd.ass_single.part1.common.Flag;
-import pcd.ass_single.part1.threads.model.PdfCounterModel;
+import pcd.ass_single.part1.common.*;
 import pcd.ass_single.part1.vt.controller.AgentManager;
 
 import java.io.File;
@@ -16,20 +12,20 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 public class AgentManagerImpl implements AgentManager {
-    private final PdfCounterModel model;
+    private final Model model;
     private final int threadCount;
     private List<Thread> agents;
     private AtomicBoolean stopFlag;
     private Flag suspendFlag;
 
-    public AgentManagerImpl(final PdfCounterModel model, final int threadCount) {
+    public AgentManagerImpl(final Model model, final int threadCount) {
         this.model = model;
         this.threadCount = threadCount;
     }
 
     @Override
     public void begin(Directory startingDirectory, String word) {
-        model.resetAll();
+        model.reset();
         stopFlag = new AtomicBoolean(false);
         suspendFlag = new Flag();
         final List<Directory> allDirectories = getAllDirectoriesRecursively(startingDirectory);
@@ -69,7 +65,7 @@ public class AgentManagerImpl implements AgentManager {
                 .flatMap(d -> {
                     var list = d.filesOfType("pdf");
                     if (!list.isEmpty()) {
-                        model.totalCounter().increment(list.size());
+                        model.incrementTotal(list.size());
                     }
                     return list.stream();
                 })

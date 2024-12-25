@@ -1,13 +1,14 @@
 package pcd.ass_single.part1.vt.view;
 
 import pcd.ass_single.part1.common.ModelObserver;
-import pcd.ass_single.part1.vt.model.VTModel;
+import pcd.ass_single.part1.vt.model.ConsumableModel;
+import pcd.ass_single.part1.vt.model.ModelState;
 
 public class ViewUpdater implements Runnable {
-    private final VTModel model;
+    private final ConsumableModel<ModelState> model;
     private final ModelObserver view;
 
-    public ViewUpdater(VTModel model, ModelObserver view) {
+    public ViewUpdater(ConsumableModel<ModelState> model, ModelObserver view) {
         this.model = model;
         this.view = view;
     }

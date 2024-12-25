@@ -3,7 +3,7 @@ package pcd.ass_single.part1.threads.controller;
 import pcd.ass_single.part1.common.Logger;
 import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.common.Flag;
-import pcd.ass_single.part1.threads.model.PdfCounterModel;
+import pcd.ass_single.part1.common.Model;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,9 +17,9 @@ class PdfCounterAgent implements Runnable {
     private final Pattern regex;
     private final AtomicBoolean stopFlag;
     private final Flag suspendFlag;
-    private final PdfCounterModel model;
+    private final Model model;
 
-    public PdfCounterAgent(final List<File> pdfs, final Pattern regex, final PdfCounterModel model,
+    public PdfCounterAgent(final List<File> pdfs, final Pattern regex, final Model model,
                            final AtomicBoolean stopFlag, final Flag suspendFlag) {
         this.pdfs = pdfs;
         this.regex = regex;
@@ -43,15 +43,14 @@ class PdfCounterAgent implements Runnable {
                 } else {
                     var doc = wrapper.document().orElseThrow();
                     if (Parsing.doesPdfSatisfyRegex(doc, regex)) {
-                        model.matchingCounter().increment(1);
+                        model.incrementFound(1);
                     }
                     doc.close();
                 }
             } catch (IOException e) {
                 debugLog(e.toString());
             }
-
-            model.parsedCounter().increment(1);
+            model.incrementParsed(1);
         }
         debugLog("finished");
     }

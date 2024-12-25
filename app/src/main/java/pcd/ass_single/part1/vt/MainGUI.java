@@ -8,7 +8,6 @@ import pcd.ass_single.part1.vt.controller.AgentManager;
 import pcd.ass_single.part1.vt.controller.AgentManagerImpl;
 import pcd.ass_single.part1.vt.controller.PdfCounterControllerImpl;
 import pcd.ass_single.part1.vt.model.VTModel;
-import pcd.ass_single.part1.vt.model.VTModelImpl;
 
 public class MainGUI {
     static {
@@ -17,8 +16,8 @@ public class MainGUI {
     }
 
     public static void main(String[] args) {
-        VTModel model = new VTModelImpl();
-        AgentManager agentManager = new AgentManagerImpl(model);
+        VTModel model = new VTModel();
+        AgentManager agentManager = new AgentManagerImpl(model, model);
         PdfCounterController<PdfCounterView> controller = new PdfCounterControllerImpl(agentManager);
         PdfCounterSwingView view = new PdfCounterSwingView(controller);
         controller.setView(view);

@@ -1,7 +1,8 @@
 package pcd.ass_single.part1.vt.controller;
 
 import pcd.ass_single.part1.common.*;
-import pcd.ass_single.part1.vt.model.VTModel;
+import pcd.ass_single.part1.vt.model.ConsumableModel;
+import pcd.ass_single.part1.vt.model.ModelState;
 import scala.Tuple2;
 
 import java.io.File;
@@ -14,15 +15,17 @@ import java.util.regex.Pattern;
 public class AgentManagerImpl implements AgentManager {
     private static final Logger LOGGER = Logger.get();
     private Pattern regex;
-    private final VTModel model;
+    private final Model model;
+    private final ConsumableModel<ModelState> consumableModel;
     private ModelObserver view;
     private final AgentFactory agentFactory = new AgentFactory();
     private final AtomicBoolean stopFlag = new AtomicBoolean();
     private final Flag suspendFlag = new Flag();
     private Thread currentManagerThread;
 
-    public AgentManagerImpl(final VTModel model) {
+    public AgentManagerImpl(final Model model, final ConsumableModel<ModelState> modelConsumer) {
         this.model = model;
+        this.consumableModel = modelConsumer;
     }
 
     @Override
@@ -74,7 +77,7 @@ public class AgentManagerImpl implements AgentManager {
                         if (!scannerRes.pdfs().isEmpty()) {
                             model.incrementTotal(scannerRes.pdfs().size());
                             runParsers(scannerRes.pdfs());
-                            agentFactory.createViewUpdater(model, view).join();
+                            agentFactory.createViewUpdater(consumableModel, view).join();
                         }
                         for (var scanner : scanners) {
                             if (scanner != null) {

@@ -4,7 +4,8 @@ import pcd.ass_single.part1.common.Directory;
 import pcd.ass_single.part1.common.ModelObserver;
 import pcd.ass_single.part1.vt.controller.agents.DirectoryScannerAgent;
 import pcd.ass_single.part1.vt.controller.agents.PdfParserAgent;
-import pcd.ass_single.part1.vt.model.VTModel;
+import pcd.ass_single.part1.vt.model.ConsumableModel;
+import pcd.ass_single.part1.vt.model.ModelState;
 import pcd.ass_single.part1.vt.view.ViewUpdater;
 import scala.Tuple2;
 
@@ -33,7 +34,7 @@ public class AgentFactory {
         return new Tuple2<>(vt, result);
     }
 
-    Thread createViewUpdater(VTModel model, ModelObserver view) {
+    Thread createViewUpdater(ConsumableModel<ModelState> model, ModelObserver view) {
         return Thread.ofVirtual()
                 .name("ViewUpdater-" + viewUpdaterId.getAndIncrement())
                 .start(new ViewUpdater(model, view));
