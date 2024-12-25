@@ -18,8 +18,12 @@ public class DirectoryScannerAgent implements Runnable {
     @Override
     public void run() {
         LOGGER.debugLog(Thread.currentThread().getName(), "running");
-        var files = dir.filesOfType("pdf");
-        var nestedDirs = dir.nestedDirectories();
-        result.set(new DirectoryContent(nestedDirs, files));
+        try {
+            var files = dir.filesOfType("pdf");
+            var nestedDirs = dir.nestedDirectories();
+            result.set(new DirectoryContent(nestedDirs, files));
+        } catch (Exception e) {
+            result.setError(e.toString());
+        }
     }
 }

@@ -4,4 +4,10 @@ import java.util.concurrent.Future;
 
 public interface VTFuture<T> extends Future<T> {
     void set(T value);
+
+    void setError(String e);
+
+    boolean isError();
+
+    String getError();
 }

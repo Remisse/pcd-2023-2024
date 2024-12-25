@@ -26,8 +26,7 @@ public class PdfParserAgent implements Runnable {
         try {
             Parsing.PDFWrapper wrapper = Parsing.loadPdf(pdf);
             if (wrapper.isError()) {
-                LOGGER.debugLog(Thread.currentThread().getName(), wrapper.error().orElseThrow());
-                result.set(false);
+                result.setError(wrapper.error().orElseThrow());
             } else {
                 result.set(Parsing.doesPdfSatisfyRegex(wrapper.document().orElseThrow(), regex));
             }

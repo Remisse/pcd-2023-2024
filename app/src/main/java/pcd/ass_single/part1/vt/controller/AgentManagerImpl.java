@@ -8,11 +8,11 @@ import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 public class AgentManagerImpl implements AgentManager {
+    private static final Logger LOGGER = Logger.get();
     private Pattern regex;
     private final VTModel model;
     private ModelObserver view;
@@ -61,7 +61,12 @@ public class AgentManagerImpl implements AgentManager {
                     var scannerData = agentFactory.createDirectoryScanner(directory);
                     try {
                         scannerData._1().join();
-                        DirectoryContent scannerRes = scannerData._2().get();
+                        var future = scannerData._2();
+                        if (future.isError()) {
+                            LOGGER.debugLog(future.getError());
+                            throw new InterruptedException(future.getError());
+                        }
+                        DirectoryContent scannerRes = future.get();
                         var scanners = scannerRes.directories().stream()
                                 .map(this::scan)
                                 .filter(Objects::nonNull)
@@ -87,7 +92,7 @@ public class AgentManagerImpl implements AgentManager {
         if (stopFlag.get()) {
             return;
         }
-        List<Tuple2<Thread, Future<Boolean>>> parsers = pdfs.stream()
+        List<Tuple2<Thread, VTFuture<Boolean>>> parsers = pdfs.stream()
                 .map(pdf -> agentFactory.createPdfParser(pdf, regex))
                 .filter(Objects::nonNull)
                 .toList();
@@ -95,7 +100,10 @@ public class AgentManagerImpl implements AgentManager {
             var found = 0;
             for (var parser : parsers) {
                 parser._1().join();
-                if (parser._2().get()) {
+                var future = parser._2();
+                if (future.isError()) {
+                    LOGGER.debugLog(future.getError());
+                } else if (future.get()) {
                     found++;
                 }
             }

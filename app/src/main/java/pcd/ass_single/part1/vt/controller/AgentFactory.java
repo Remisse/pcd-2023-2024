@@ -9,7 +9,6 @@ import pcd.ass_single.part1.vt.view.ViewUpdater;
 import scala.Tuple2;
 
 import java.io.File;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
@@ -18,7 +17,7 @@ public class AgentFactory {
     private final AtomicLong scannerId = new AtomicLong();
     private final AtomicLong viewUpdaterId = new AtomicLong();
 
-    Tuple2<Thread, Future<DirectoryContent>> createDirectoryScanner(Directory directory) {
+    Tuple2<Thread, VTFuture<DirectoryContent>> createDirectoryScanner(Directory directory) {
         VTFuture<DirectoryContent> result = new VTFutureImpl<>();
         var vt = Thread.ofVirtual()
                 .name("DirectoryScanner-" + scannerId.getAndIncrement())
@@ -26,7 +25,7 @@ public class AgentFactory {
         return new Tuple2<>(vt, result);
     }
 
-    Tuple2<Thread, Future<Boolean>> createPdfParser(File pdf, Pattern regex) {
+    Tuple2<Thread, VTFuture<Boolean>> createPdfParser(File pdf, Pattern regex) {
         VTFuture<Boolean> result = new VTFutureImpl<>();
         var vt = Thread.ofVirtual()
                 .name("PdfParser-" + parserId.getAndIncrement())
