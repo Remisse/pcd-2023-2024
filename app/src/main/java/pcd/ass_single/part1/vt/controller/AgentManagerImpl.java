@@ -69,6 +69,7 @@ public class AgentManagerImpl implements AgentManager {
                         if (!scannerRes.pdfs().isEmpty()) {
                             model.incrementTotal(scannerRes.pdfs().size());
                             runParsers(scannerRes.pdfs());
+                            agentFactory.createViewUpdater(model, view).join();
                         }
                         for (var scanner : scanners) {
                             if (scanner != null) {
@@ -82,31 +83,26 @@ public class AgentManagerImpl implements AgentManager {
     }
 
     private void runParsers(List<File> pdfs) throws InterruptedException, ExecutionException {
+        suspendFlag.tryAwait();
+        if (stopFlag.get()) {
+            return;
+        }
         List<Tuple2<Thread, Future<Boolean>>> parsers = pdfs.stream()
                 .map(pdf -> agentFactory.createPdfParser(pdf, regex))
                 .filter(Objects::nonNull)
                 .toList();
-        var found = 0;
-        for (var parser : parsers) {
-            suspendFlag.tryAwait();
-            if (stopFlag.get()) {
-                return;
+        if (!parsers.isEmpty()) {
+            var found = 0;
+            for (var parser : parsers) {
+                parser._1().join();
+                if (parser._2().get()) {
+                    found++;
+                }
             }
-            parser._1().join();
-            if (parser._2().get()) {
-                found++;
-            }
-        }
-        boolean parsedSome = !parsers.isEmpty();
-        boolean foundSome = found > 0;
-        if (foundSome) {
-            model.incrementFound(found);
-        }
-        if (parsedSome) {
             model.incrementParsed(parsers.size());
-        }
-        if (foundSome || parsedSome) {
-            agentFactory.createViewUpdater(model, view).join();
+            if (found > 0) {
+                model.incrementFound(found);
+            }
         }
     }
 

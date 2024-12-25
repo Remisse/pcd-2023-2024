@@ -14,10 +14,10 @@ public class ViewUpdater implements Runnable {
 
     @Override
     public void run() {
-        model.consumeResult(res -> {
-            view.notifyTotalPdfsCount(res.total());
-            view.notifyParsedPdfsCount(res.parsed());
-            view.notifyFoundPdfsCount(res.found());
+        model.consumeState(s -> {
+            view.notifyTotalPdfsCount(s.total());
+            view.notifyParsedPdfsCount(s.parsed());
+            view.notifyFoundPdfsCount(s.found());
         });
     }
 }

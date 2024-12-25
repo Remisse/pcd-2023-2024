@@ -32,9 +32,9 @@ public class VTModelImpl implements VTModel {
     }
 
     @Override
-    public void consumeResult(Consumer<Result> consumer) {
+    public void consumeState(Consumer<ModelState> consumer) {
         try (var ignored = lock.lockAsResource()) {
-            consumer.accept(new Result(total, parsed, found));
+            consumer.accept(new ModelState(total, parsed, found));
         }
     }
 

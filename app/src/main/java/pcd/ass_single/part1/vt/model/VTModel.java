@@ -9,7 +9,7 @@ public interface VTModel {
 
     void incrementFound(int n);
 
-    void consumeResult(Consumer<Result> consumer);
+    void consumeState(Consumer<ModelState> consumer);
 
     void reset();
 }
