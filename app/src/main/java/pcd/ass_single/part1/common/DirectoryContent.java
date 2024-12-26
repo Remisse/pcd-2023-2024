@@ -1,6 +1,4 @@
-package pcd.ass_single.part1.vt.controller;
-
-import pcd.ass_single.part1.common.Directory;
+package pcd.ass_single.part1.common;
 
 import java.io.File;
 import java.util.List;

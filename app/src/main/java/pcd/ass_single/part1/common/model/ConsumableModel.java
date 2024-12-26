@@ -1,4 +1,4 @@
-package pcd.ass_single.part1.vt.model;
+package pcd.ass_single.part1.common.model;
 
 import java.util.function.Consumer;
 

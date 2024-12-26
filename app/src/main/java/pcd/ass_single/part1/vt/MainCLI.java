@@ -9,7 +9,7 @@ import pcd.ass_single.part1.common.view.cli.PdfCounterCLIView;
 import pcd.ass_single.part1.common.controller.AgentManager;
 import pcd.ass_single.part1.vt.controller.AgentManagerImpl;
 import pcd.ass_single.part1.vt.controller.PdfCounterControllerImpl;
-import pcd.ass_single.part1.vt.model.VTModel;
+import pcd.ass_single.part1.common.model.SimpleAtomicModel;
 
 public class MainCLI {
     static {
@@ -22,7 +22,7 @@ public class MainCLI {
             CLIUtils.usage();
         }
 
-        VTModel model = new VTModel();
+        SimpleAtomicModel model = new SimpleAtomicModel();
         AgentManager agentManager = new AgentManagerImpl(model, model);
         PdfCounterController<PdfCounterView> controller = new PdfCounterControllerImpl(agentManager);
         var view = new PdfCounterCLIView(controller);

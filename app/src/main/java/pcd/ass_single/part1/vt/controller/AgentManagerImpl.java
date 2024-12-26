@@ -2,8 +2,9 @@ package pcd.ass_single.part1.vt.controller;
 
 import pcd.ass_single.part1.common.*;
 import pcd.ass_single.part1.common.controller.AgentManager;
-import pcd.ass_single.part1.vt.model.ConsumableModel;
-import pcd.ass_single.part1.vt.model.ModelState;
+import pcd.ass_single.part1.common.model.ConsumableModel;
+import pcd.ass_single.part1.common.model.Model;
+import pcd.ass_single.part1.common.model.ModelState;
 import scala.Tuple2;
 
 import java.io.File;

@@ -1,11 +1,10 @@
-package pcd.ass_single.part1.vt.model;
+package pcd.ass_single.part1.common.model;
 
-import pcd.ass_single.part1.common.Model;
 import pcd.ass_single.part1.common.lock.CloseableReentrantLock;
 
 import java.util.function.Consumer;
 
-public class VTModel implements Model, ConsumableModel<ModelState> {
+public class SimpleAtomicModel implements Model, ConsumableModel<ModelState> {
     private int total;
     private int parsed;
     private int found;

@@ -1,4 +1,4 @@
-package pcd.ass_single.part1.common;
+package pcd.ass_single.part1.common.model;
 
 public interface Model {
     void incrementTotal(int n);

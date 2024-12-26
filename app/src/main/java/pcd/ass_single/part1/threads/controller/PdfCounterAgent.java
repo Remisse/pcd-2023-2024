@@ -3,7 +3,7 @@ package pcd.ass_single.part1.threads.controller;
 import pcd.ass_single.part1.common.Logger;
 import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.common.Flag;
-import pcd.ass_single.part1.common.Model;
+import pcd.ass_single.part1.common.model.Model;
 
 import java.io.File;
 import java.io.IOException;

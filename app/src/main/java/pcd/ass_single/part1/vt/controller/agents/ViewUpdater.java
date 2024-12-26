@@ -1,8 +1,8 @@
-package pcd.ass_single.part1.vt.view;
+package pcd.ass_single.part1.vt.controller.agents;
 
 import pcd.ass_single.part1.common.ModelObserver;
-import pcd.ass_single.part1.vt.model.ConsumableModel;
-import pcd.ass_single.part1.vt.model.ModelState;
+import pcd.ass_single.part1.common.model.ConsumableModel;
+import pcd.ass_single.part1.common.model.ModelState;
 
 public class ViewUpdater implements Runnable {
     private final ConsumableModel<ModelState> model;

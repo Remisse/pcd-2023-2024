@@ -1,12 +1,13 @@
 package pcd.ass_single.part1.vt.controller;
 
 import pcd.ass_single.part1.common.Directory;
+import pcd.ass_single.part1.common.DirectoryContent;
 import pcd.ass_single.part1.common.ModelObserver;
 import pcd.ass_single.part1.vt.controller.agents.DirectoryScannerAgent;
 import pcd.ass_single.part1.vt.controller.agents.PdfParserAgent;
-import pcd.ass_single.part1.vt.model.ConsumableModel;
-import pcd.ass_single.part1.vt.model.ModelState;
-import pcd.ass_single.part1.vt.view.ViewUpdater;
+import pcd.ass_single.part1.common.model.ConsumableModel;
+import pcd.ass_single.part1.common.model.ModelState;
+import pcd.ass_single.part1.vt.controller.agents.ViewUpdater;
 import scala.Tuple2;
 
 import java.io.File;

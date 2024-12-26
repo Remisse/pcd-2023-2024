@@ -2,7 +2,7 @@ package pcd.ass_single.part1.threads.model;
 
 import pcd.ass_single.part1.common.ModelObserver;
 import pcd.ass_single.part1.common.Observable;
-import pcd.ass_single.part1.common.Model;
+import pcd.ass_single.part1.common.model.Model;
 
 import java.util.List;
 

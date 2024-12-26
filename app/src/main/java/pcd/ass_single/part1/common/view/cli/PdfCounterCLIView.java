@@ -22,7 +22,7 @@ public class PdfCounterCLIView implements PdfCounterView {
 
     @Override
     public void onStop() {
-        LOGGER.log("Total: " + total + "\nParsed: " + parsed + "\nContaining search term: " + found);
+        LOGGER.log("***Finished***\n- Total: " + total + "\n- Parsed: " + parsed + "\n- Containing search term: " + found);
     }
 
     @Override
