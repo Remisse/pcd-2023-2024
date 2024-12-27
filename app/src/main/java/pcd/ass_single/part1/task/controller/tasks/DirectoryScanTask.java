@@ -2,14 +2,12 @@ package pcd.ass_single.part1.task.controller.tasks;
 
 import pcd.ass_single.part1.common.Directory;
 import pcd.ass_single.part1.common.Flag;
-import pcd.ass_single.part1.common.Logger;
 import pcd.ass_single.part1.common.model.Model;
 
 import java.util.concurrent.ForkJoinTask;
 import java.util.regex.Pattern;
 
 public class DirectoryScanTask extends AbstractTask<Void> {
-    private static final Logger LOGGER = Logger.get();
     private final Model model;
     private final Directory directory;
     private final Pattern regex;

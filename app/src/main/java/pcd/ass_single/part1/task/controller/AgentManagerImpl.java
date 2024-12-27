@@ -1,6 +1,9 @@
 package pcd.ass_single.part1.task.controller;
 
-import pcd.ass_single.part1.common.*;
+import pcd.ass_single.part1.common.Directory;
+import pcd.ass_single.part1.common.Flag;
+import pcd.ass_single.part1.common.ModelObserver;
+import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.common.controller.AgentManager;
 import pcd.ass_single.part1.common.model.ConsumableModel;
 import pcd.ass_single.part1.common.model.Model;
@@ -12,14 +15,13 @@ import java.util.concurrent.*;
 import java.util.regex.Pattern;
 
 public class AgentManagerImpl implements AgentManager {
+    private final Model model;
+    private final ConsumableModel<ModelState> consumableModel;
+    private final Flag suspendFlag = new Flag();
     private ScheduledExecutorService scheduledExecutor;
     private ForkJoinPool pool;
     private ForkJoinTask<Void> currentMainTask;
-    private ScheduledFuture<?> currentViewUpdateTask;
-    private final Model model;
-    private final ConsumableModel<ModelState> consumableModel;
     private ModelObserver view;
-    private final Flag suspendFlag = new Flag();
 
     public AgentManagerImpl(Model model, ConsumableModel<ModelState> consumableModel) {
         this.model = model;
@@ -38,18 +40,19 @@ public class AgentManagerImpl implements AgentManager {
         suspendFlag.reset();
         final Pattern regex = Parsing.createRegexOutOfSearchTerm(word);
         pool = new ForkJoinPool();
-        scheduledExecutor = Executors.newScheduledThreadPool(1);
-        currentViewUpdateTask = scheduledExecutor.scheduleWithFixedDelay(new ViewUpdateTask(consumableModel, view, suspendFlag),
-                0, 500, TimeUnit.MILLISECONDS);
         currentMainTask = pool.submit(new DirectoryScanTask(model, startingDirectory, regex, suspendFlag));
+        scheduledExecutor = Executors.newScheduledThreadPool(1);
+        scheduledExecutor.scheduleAtFixedRate(new ViewUpdateTask(consumableModel, view, suspendFlag), 0, 500, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void awaitCompletion() {
-        currentMainTask.join();
-        currentViewUpdateTask.cancel(false);
-        forceViewUpdate();
+        try {
+            currentMainTask.join();
+        } catch (CancellationException ignored) {
+        }
         closeAllPools();
+        forceViewUpdate();
     }
 
     private void forceViewUpdate() {
@@ -78,7 +81,7 @@ public class AgentManagerImpl implements AgentManager {
     }
 
     private void closeAllPools() {
-        pool.close();
-        scheduledExecutor.close();
+        pool.shutdownNow();
+        scheduledExecutor.shutdownNow();
     }
 }
