@@ -108,7 +108,7 @@ public class PdfCounterSwingView extends JFrame implements PdfCounterView, Actio
 
     private static void updateField(JTextField field, String text) {
         try {
-            SwingUtilities.invokeAndWait(() -> field.setText(text));
+            SwingUtilities.invokeLater(() -> field.setText(text));
         } catch (Exception ex){
             LOGGER.debugLog(ex.toString());
         }
