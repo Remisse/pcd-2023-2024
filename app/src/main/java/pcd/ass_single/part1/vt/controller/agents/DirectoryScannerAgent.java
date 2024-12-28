@@ -9,6 +9,7 @@ import pcd.ass_single.part1.vt.controller.VTFutureImpl;
 import scala.Tuple2;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
@@ -36,14 +37,13 @@ public class DirectoryScannerAgent implements Runnable {
             return;
         }
         try {
-            var scanners = dir.nestedDirectories().stream()
+            List<Thread> scanners = dir.nestedDirectories().stream()
                     .map(this::createScanner)
                     .toList();
-
             var pdfs = dir.filesOfType("pdf");
             if (!pdfs.isEmpty()) {
                 model.incrementTotal(pdfs.size());
-                var parsers = pdfs.stream()
+                List<Tuple2<Thread, VTFuture<Boolean>>> parsers = pdfs.stream()
                         .map(this::createParser)
                         .toList();
                 for (var task : parsers) {
@@ -57,9 +57,7 @@ public class DirectoryScannerAgent implements Runnable {
                         found++;
                     }
                 }
-                if (!parsers.isEmpty()) {
-                    model.incrementParsed(parsers.size());
-                }
+                model.incrementParsed(parsers.size());
                 if (found > 0) {
                     model.incrementFound(found);
                 }
