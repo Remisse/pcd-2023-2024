@@ -8,6 +8,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+    scala
 }
 
 repositories {
@@ -25,9 +26,10 @@ dependencies {
     implementation(libs.guava)
    
    	/* module 2.1 -- Vert.x */
-    implementation("io.vertx:vertx-core:4.5.7")
-    implementation("io.vertx:vertx-web:4.5.7")
-    implementation("io.vertx:vertx-web-client:4.5.7")
+    val vertxVer = "4.5.11"
+    implementation("io.vertx:vertx-core:$vertxVer")
+    implementation("io.vertx:vertx-web:$vertxVer")
+    implementation("io.vertx:vertx-web-client:$vertxVer")
        
     /* module 2.2 -- RxJava */
     implementation("io.reactivex.rxjava3:rxjava:3.1.8")
@@ -38,7 +40,7 @@ dependencies {
     testImplementation("com.typesafe.akka:akka-actor-testkit-typed_2.13")
 
     /* module 4.2 */
-    implementation("com.rabbitmq:amqp-client:5.17.0")
+    implementation("com.rabbitmq:amqp-client:5.24.0")
 
     // https://mvnrepository.com/artifact/org.jsoup/jsoup
     implementation("org.jsoup:jsoup:1.18.3")
@@ -51,6 +53,9 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.7")
     // testImplementation "org.slf4j:slf4j-reload4j:2.0.7"
     implementation("org.slf4j:slf4j-simple:2.0.7")
+
+    implementation("org.scala-lang:scala3-library_3:3.6.2")
+    testImplementation("org.scalatest:scalatest_3:3.2.19")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -68,4 +73,15 @@ application {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+sourceSets {
+    main {
+        scala {
+            setSrcDirs(listOf("src/main/scala", "src/main/java"))
+        }
+        java {
+            setSrcDirs(listOf<String>())
+        }
+    }
 }
