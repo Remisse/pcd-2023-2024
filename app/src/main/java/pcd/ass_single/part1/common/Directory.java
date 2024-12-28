@@ -33,4 +33,9 @@ public class Directory {
                 .filter(f -> f.isFile() && f.getName().endsWith("." + type))
                 .toList();
     }
+
+    @Override
+    public String toString() {
+        return asFile.getAbsolutePath();
+    }
 }

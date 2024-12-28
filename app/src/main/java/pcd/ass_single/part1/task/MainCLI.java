@@ -13,7 +13,7 @@ import pcd.ass_single.part1.task.controller.PdfCounterControllerImpl;
 
 public class MainCLI {
     static {
-        Config.setDebugLoggingEnabled(true);
+        Config.setDebugLoggingEnabled(false);
         Config.disablePdfBoxWarnings();
     }
 
@@ -24,7 +24,7 @@ public class MainCLI {
 
         SimpleAtomicModel model = new SimpleAtomicModel();
         AgentManager agentManager = new AgentManagerImpl(model, model);
-        PdfCounterController<PdfCounterView> controller = new PdfCounterControllerImpl(agentManager);
+        PdfCounterController<PdfCounterView> controller = new PdfCounterControllerImpl(model, agentManager);
         var view = new PdfCounterCLIView(controller);
         controller.setView(view);
         controller.setDirectory(new Directory(args[0]));

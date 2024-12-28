@@ -38,12 +38,8 @@ public class AgentManagerImpl implements AgentManager {
     @Override
     public void begin(Directory startingDirectory, String searchTerm) {
         this.regex = Parsing.createRegexOutOfSearchTerm(searchTerm);
-        model.reset();
         stopFlag.set(false);
         suspendFlag.reset();
-        view.notifyTotalPdfsCount(0);
-        view.notifyParsedPdfsCount(0);
-        view.notifyFoundPdfsCount(0);
         currentManagerThread = Thread.ofVirtual().start(() -> {
             var vt = scan(startingDirectory);
             if (vt != null) {

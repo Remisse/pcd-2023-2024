@@ -21,7 +21,7 @@ public class MainCLI {
 
         var model = new PdfCounterModelImpl();
         var agentManager = new AgentManagerImpl(model, Runtime.getRuntime().availableProcessors() + 1);
-        var controller = new PdfCounterControllerImpl(agentManager);
+        var controller = new PdfCounterControllerImpl(model, agentManager);
         controller.setDirectory(new Directory(args[0]));
         controller.setSearchTerm(args[1]);
         var view = new PdfCounterCLIView(controller);

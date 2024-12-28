@@ -24,7 +24,7 @@ public class MainCLI {
 
         SimpleAtomicModel model = new SimpleAtomicModel();
         AgentManager agentManager = new AgentManagerImpl(model, model);
-        PdfCounterController<PdfCounterView> controller = new PdfCounterControllerImpl(agentManager);
+        PdfCounterController<PdfCounterView> controller = new PdfCounterControllerImpl(model, agentManager);
         var view = new PdfCounterCLIView(controller);
         controller.setView(view);
         controller.setDirectory(new Directory(args[0]));

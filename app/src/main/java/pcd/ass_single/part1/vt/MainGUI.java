@@ -18,7 +18,7 @@ public class MainGUI {
     public static void main(String[] args) {
         SimpleAtomicModel model = new SimpleAtomicModel();
         AgentManager agentManager = new AgentManagerImpl(model, model);
-        PdfCounterController<PdfCounterView> controller = new PdfCounterControllerImpl(agentManager);
+        PdfCounterController<PdfCounterView> controller = new PdfCounterControllerImpl(model, agentManager);
         PdfCounterSwingView view = new PdfCounterSwingView(controller);
         controller.setView(view);
         view.display();

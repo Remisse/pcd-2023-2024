@@ -33,10 +33,6 @@ public class AgentManagerImpl implements AgentManager {
         if (view == null) {
             throw new IllegalStateException("View has not been set.");
         }
-        model.reset();
-        view.notifyFoundPdfsCount(0);
-        view.notifyParsedPdfsCount(0);
-        view.notifyTotalPdfsCount(0);
         suspendFlag.reset();
         final Pattern regex = Parsing.createRegexOutOfSearchTerm(word);
         pool = new ForkJoinPool();

@@ -31,6 +31,19 @@ public abstract class AbstractPdfCounterController<V> implements PdfCounterContr
         this.searchTerm = term;
     }
 
+    @Override
+    public void processEvent(String event) {
+        new Thread(() -> {
+            switch (event) {
+                case "Start"   -> startComputationTemplate();
+                case "Stop"    -> stopComputationTemplate();
+                case "Suspend" -> suspendComputationTemplate();
+                case "Resume"  -> resumeComputationTemplate();
+                default        -> throw new IllegalArgumentException("Unhandled event \"" + event + "\".");
+            }
+        }).start();
+    }
+
     protected void startComputationTemplate() {
         state.compareThenAct(Set.of(ComputationStateType.IDLE), () -> {
             setStateAndLog(ComputationStateType.STARTING);
@@ -40,13 +53,13 @@ public abstract class AbstractPdfCounterController<V> implements PdfCounterContr
         }
         startComputation();
         setStateAndLog(ComputationStateType.RUNNING);
-        doComputationCycle();
+        computeAndEnd();
         setStateAndLog(ComputationStateType.IDLE);
     }
 
     protected abstract void startComputation();
 
-    protected abstract void doComputationCycle();
+    protected abstract void computeAndEnd();
 
     protected void stopComputationTemplate() {
         state.compareThenAct(Set.of(ComputationStateType.RUNNING, ComputationStateType.SUSPENDED), () ->  {
@@ -85,11 +98,11 @@ public abstract class AbstractPdfCounterController<V> implements PdfCounterContr
         return view;
     }
 
-    protected Directory searchDirectory() {
+    protected final Directory searchDirectory() {
         return searchDirectory;
     }
 
-    protected String searchTerm() {
+    protected final String searchTerm() {
         return searchTerm;
     }
 
