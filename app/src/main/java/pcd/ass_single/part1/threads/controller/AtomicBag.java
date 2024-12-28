@@ -32,8 +32,8 @@ public class AtomicBag<T> implements Bag<T> {
 
     @Override
     public void putAll(List<T> items) {
-        if (items.isEmpty()) {
-            return;
+        if (Objects.requireNonNull(items).isEmpty()) {
+            throw new IllegalArgumentException("Empty list");
         }
         try (var ignored = lock.lockInterruptiblyAsResource()) {
             queue.addAll(items);
