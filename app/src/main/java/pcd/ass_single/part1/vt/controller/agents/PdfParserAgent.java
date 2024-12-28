@@ -22,7 +22,6 @@ public class PdfParserAgent implements Runnable {
 
     @Override
     public void run() {
-        LOGGER.debugLog(Thread.currentThread().getName(), "running");
         try {
             Parsing.PDFWrapper wrapper = Parsing.loadPdf(pdf);
             if (wrapper.isError()) {

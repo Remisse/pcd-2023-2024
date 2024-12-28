@@ -5,22 +5,17 @@ import pcd.ass_single.part1.common.controller.AgentManager;
 import pcd.ass_single.part1.common.model.ConsumableModel;
 import pcd.ass_single.part1.common.model.Model;
 import pcd.ass_single.part1.common.model.ModelState;
-import scala.Tuple2;
+import pcd.ass_single.part1.vt.controller.agents.DirectoryScannerAgent;
+import pcd.ass_single.part1.vt.controller.agents.ViewUpdater;
 
-import java.io.File;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 public class AgentManagerImpl implements AgentManager {
-    private static final Logger LOGGER = Logger.get();
-    private Pattern regex;
     private final Model model;
     private final ConsumableModel<ModelState> consumableModel;
     private ModelObserver view;
-    private final AgentFactory agentFactory = new AgentFactory();
     private final AtomicBoolean stopFlag = new AtomicBoolean();
     private final Flag suspendFlag = new Flag();
     private Thread currentManagerThread;
@@ -37,87 +32,33 @@ public class AgentManagerImpl implements AgentManager {
 
     @Override
     public void begin(Directory startingDirectory, String searchTerm) {
-        this.regex = Parsing.createRegexOutOfSearchTerm(searchTerm);
+        if (view == null) {
+            throw new IllegalStateException("View not set");
+        }
         stopFlag.set(false);
         suspendFlag.reset();
-        currentManagerThread = Thread.ofVirtual().start(() -> {
-            var vt = scan(startingDirectory);
-            if (vt != null) {
-                try {
-                    vt.join();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-    }
-
-    private Thread scan(Directory directory) {
-        return Thread.ofVirtual()
+        final Pattern regex = Parsing.createRegexOutOfSearchTerm(searchTerm);
+        currentManagerThread = Thread.ofVirtual()
+                .start(new DirectoryScannerAgent(startingDirectory, regex, model, stopFlag, suspendFlag));
+        Thread.ofVirtual()
                 .start(() -> {
-                    var scannerData = agentFactory.createDirectoryScanner(directory);
-                    try {
-                        scannerData._1().join();
+                    while (!stopFlag.get()) {
+                        Thread.ofVirtual().start(createViewUpdater());
+                        try {
+                            Thread.sleep(Duration.ofMillis(500));
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                         suspendFlag.tryAwait();
-                        if (stopFlag.get()) {
-                            return;
-                        }
-                        var future = scannerData._2();
-                        if (future.isError()) {
-                            LOGGER.debugLog(future.getError());
-                            throw new InterruptedException(future.getError());
-                        }
-                        DirectoryContent scannerRes = future.get();
-                        var scanners = scannerRes.directories().stream()
-                                .map(this::scan)
-                                .filter(Objects::nonNull)
-                                .toList();
-                        if (!scannerRes.pdfs().isEmpty()) {
-                            model.incrementTotal(scannerRes.pdfs().size());
-                            runParsers(scannerRes.pdfs());
-                            agentFactory.createViewUpdater(consumableModel, view).join();
-                        }
-                        for (var scanner : scanners) {
-                            if (scanner != null) {
-                                scanner.join();
-                            }
-                        }
-                    } catch (InterruptedException | ExecutionException e) {
-                        throw new RuntimeException(e);
                     }
                 });
-    }
-
-    private void runParsers(List<File> pdfs) throws InterruptedException, ExecutionException {
-        List<Tuple2<Thread, VTFuture<Boolean>>> parsers = pdfs.stream()
-                .map(pdf -> agentFactory.createPdfParser(pdf, regex))
-                .filter(Objects::nonNull)
-                .toList();
-        if (!parsers.isEmpty()) {
-            var found = 0;
-            for (var parser : parsers) {
-                parser._1().join();
-                var future = parser._2();
-                if (future.isError()) {
-                    LOGGER.debugLog(future.getError());
-                } else if (future.get()) {
-                    found++;
-                }
-                suspendFlag.tryAwait();
-                if (stopFlag.get()) {
-                    return;
-                }
-            }
-            model.incrementParsed(parsers.size());
-            if (found > 0) {
-                model.incrementFound(found);
-            }
-        }
     }
 
     @Override
     public void awaitCompletion() throws InterruptedException {
         currentManagerThread.join();
+        createViewUpdater().run();
+        stop();
     }
 
     @Override
@@ -134,5 +75,9 @@ public class AgentManagerImpl implements AgentManager {
     @Override
     public void resume() {
         suspendFlag.reset();
+    }
+
+    private Runnable createViewUpdater() {
+        return new ViewUpdater(consumableModel, view);
     }
 }

@@ -1,8 +1,12 @@
 package pcd.ass_single.part1.vt.controller.agents;
 
+import pcd.ass_single.part1.common.Flag;
 import pcd.ass_single.part1.common.ModelObserver;
 import pcd.ass_single.part1.common.model.ConsumableModel;
 import pcd.ass_single.part1.common.model.ModelState;
+
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ViewUpdater implements Runnable {
     private final ConsumableModel<ModelState> model;
