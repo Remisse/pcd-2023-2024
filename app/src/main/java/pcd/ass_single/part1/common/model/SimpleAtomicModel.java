@@ -8,42 +8,52 @@ public class SimpleAtomicModel implements Model, ConsumableModel<ModelState> {
     private int total;
     private int parsed;
     private int found;
-    private final CloseableReentrantLock lock = new CloseableReentrantLock();
+    private final CloseableReentrantLock totalLock = new CloseableReentrantLock();
+    private final CloseableReentrantLock parsedLock = new CloseableReentrantLock();
+    private final CloseableReentrantLock foundLock = new CloseableReentrantLock();
 
     @Override
     public void incrementTotal(int n) {
-        try (var ignored = lock.lockAsResource()) {
+        try (var ignored = totalLock.lockAsResource()) {
             total += ensureNumberIsPositive(n);
         }
     }
 
     @Override
     public void incrementParsed(int n) {
-        try (var ignored = lock.lockAsResource()) {
+        try (var ignored = parsedLock.lockAsResource()) {
             parsed += ensureNumberIsPositive(n);
         }
     }
 
     @Override
     public void incrementFound(int n) {
-        try (var ignored = lock.lockAsResource()) {
+        try (var ignored = foundLock.lockAsResource()) {
             found += ensureNumberIsPositive(n);
         }
     }
 
     @Override
     public void consumeState(Consumer<ModelState> consumer) {
-        try (var ignored = lock.lockAsResource()) {
-            consumer.accept(new ModelState(total, parsed, found));
-        }
+        acquireAllAndThen(() -> consumer.accept(new ModelState(total, parsed, found)));
     }
 
     @Override
     public void reset() {
-        try (var ignored = lock.lockAsResource()) {
+        acquireAllAndThen(() -> {
             total = 0;
             parsed = 0;
             found = 0;
+        });
+    }
+
+    private void acquireAllAndThen(Runnable runnable) {
+        try (var ignored = totalLock.lockAsResource()) {
+            try (var ignored2 = parsedLock.lockAsResource()) {
+                try (var ignored3 = foundLock.lockAsResource()) {
+                    runnable.run();
+                }
+            }
         }
     }
 

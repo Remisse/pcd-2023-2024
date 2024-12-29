@@ -5,7 +5,7 @@ import pcd.ass_single.part1.common.Directory;
 import pcd.ass_single.part1.common.view.cli.CLIUtils;
 import pcd.ass_single.part1.threads.controller.AgentManagerImpl;
 import pcd.ass_single.part1.threads.controller.PdfCounterControllerImpl;
-import pcd.ass_single.part1.threads.model.PdfCounterModelImpl;
+import pcd.ass_single.part1.threads.model.ObservableModel;
 import pcd.ass_single.part1.common.view.cli.PdfCounterCLIView;
 
 public class MainCLI {
@@ -19,7 +19,7 @@ public class MainCLI {
            CLIUtils.usage();
         }
 
-        var model = new PdfCounterModelImpl();
+        var model = new ObservableModel();
         var agentManager = new AgentManagerImpl(model, Runtime.getRuntime().availableProcessors() + 1);
         var controller = new PdfCounterControllerImpl(model, agentManager);
         controller.setDirectory(new Directory(args[0]));

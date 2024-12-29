@@ -1,7 +1,7 @@
 // Edited version of https://stackoverflow.com/a/9976304 and distributed under the same
 // license: https://creativecommons.org/licenses/by-sa/3.0/
 
-package pcd.ass_single.part1.threads.controller;
+package pcd.ass_single.part1.threads;
 
 import java.util.Objects;
 import java.util.function.Consumer;

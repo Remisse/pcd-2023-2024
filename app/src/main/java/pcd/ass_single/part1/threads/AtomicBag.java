@@ -1,4 +1,4 @@
-package pcd.ass_single.part1.threads.controller;
+package pcd.ass_single.part1.threads;
 
 import pcd.ass_single.part1.common.Logger;
 import pcd.ass_single.part1.common.lock.CloseableReentrantLock;
@@ -8,7 +8,7 @@ import java.util.concurrent.locks.Condition;
 
 public class AtomicBag<T> implements Bag<T> {
     private static final Logger LOGGER = Logger.get();
-    private final List<T> queue = new ArrayList<>();
+    private final Queue<T> queue = new ArrayDeque<>();
     private final CloseableReentrantLock lock = new CloseableReentrantLock();
     private final Condition proceed = lock.newCondition();
     private boolean isBeingClosed;
@@ -60,7 +60,7 @@ public class AtomicBag<T> implements Bag<T> {
             if (queue.isEmpty()) {
                 throw new IllegalStateException("Queue is empty");
             }
-            return Optional.of(queue.removeLast());
+            return Optional.of(queue.poll());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

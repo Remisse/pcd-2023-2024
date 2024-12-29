@@ -3,7 +3,7 @@ package pcd.ass_single.part1.threads;
 import pcd.ass_single.part1.common.Config;
 import pcd.ass_single.part1.threads.controller.AgentManagerImpl;
 import pcd.ass_single.part1.threads.controller.PdfCounterControllerImpl;
-import pcd.ass_single.part1.threads.model.PdfCounterModelImpl;
+import pcd.ass_single.part1.threads.model.ObservableModel;
 import pcd.ass_single.part1.common.view.gui.PdfCounterSwingView;
 
 public class MainGUI {
@@ -13,7 +13,7 @@ public class MainGUI {
     }
 
     public static void main(String[] args) {
-        var model = new PdfCounterModelImpl();
+        var model = new ObservableModel();
         var agentManager = new AgentManagerImpl(model, Runtime.getRuntime().availableProcessors() + 1);
         var controller = new PdfCounterControllerImpl(model, agentManager);
         var view = new PdfCounterSwingView(controller);

@@ -1,4 +1,4 @@
-package pcd.ass_single.part1.threads.controller;
+package pcd.ass_single.part1.threads;
 
 import java.util.List;
 import java.util.Optional;

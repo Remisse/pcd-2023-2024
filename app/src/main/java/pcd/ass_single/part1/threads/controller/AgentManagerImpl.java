@@ -3,6 +3,9 @@ package pcd.ass_single.part1.threads.controller;
 import pcd.ass_single.part1.common.*;
 import pcd.ass_single.part1.common.controller.AgentManager;
 import pcd.ass_single.part1.common.model.Model;
+import pcd.ass_single.part1.threads.AtomicBag;
+import pcd.ass_single.part1.threads.Bag;
+import pcd.ass_single.part1.threads.Either;
 import pcd.ass_single.part1.threads.controller.agents.PdfCounterAgent;
 
 import java.io.File;

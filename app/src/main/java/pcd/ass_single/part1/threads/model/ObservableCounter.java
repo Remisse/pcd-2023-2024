@@ -25,18 +25,18 @@ public class ObservableCounter implements Counter, Observable {
     @Override
     public synchronized void increment(int n) {
         value += ensureNumberIsPositive(n);
-        notifyObservers(value);
+        notifyObservers();
     }
 
     @Override
     public synchronized void reset() {
         value = 0;
-        notifyObservers(value);
+        notifyObservers();
     }
 
-    private void notifyObservers(int val) {
+    private void notifyObservers() {
         for (ModelObserver obs : observers) {
-            onNewValue.accept(obs, val);
+            onNewValue.accept(obs, value);
         }
     }
 

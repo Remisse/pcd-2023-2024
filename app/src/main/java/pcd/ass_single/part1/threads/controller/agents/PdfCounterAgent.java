@@ -2,11 +2,12 @@ package pcd.ass_single.part1.threads.controller.agents;
 
 import pcd.ass_single.part1.common.*;
 import pcd.ass_single.part1.common.model.Model;
-import pcd.ass_single.part1.threads.controller.Bag;
-import pcd.ass_single.part1.threads.controller.Either;
+import pcd.ass_single.part1.threads.Bag;
+import pcd.ass_single.part1.threads.Either;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class PdfCounterAgent implements Runnable {
@@ -26,7 +27,7 @@ public class PdfCounterAgent implements Runnable {
     @Override
     public void run() {
         while (true) {
-            var either = bag.checkInAndAwait();
+            Optional<Either<Directory, File>> either = bag.checkInAndAwait();
             if (either.isEmpty()) {
                 return;
             }
@@ -36,14 +37,14 @@ public class PdfCounterAgent implements Runnable {
     }
 
     private void actAsScanner(Directory dir) {
-        var directories = dir.nestedDirectories().stream().map(Either::<Directory, File>left).toList();
         var pdfs = dir.filesOfType("pdf").stream().map(Either::<Directory, File>right).toList();
+        if (!pdfs.isEmpty()) {
+            bag.putAll(pdfs);
+            model.incrementTotal(pdfs.size());
+        }
+        var directories = dir.nestedDirectories().stream().map(Either::<Directory, File>left).toList();
         if (!directories.isEmpty()) {
             bag.putAll(directories);
-        }
-        if (!pdfs.isEmpty()) {
-            model.incrementTotal(pdfs.size());
-            bag.putAll(pdfs);
         }
     }
 
