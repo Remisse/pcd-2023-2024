@@ -23,7 +23,7 @@ public final class PdfCounterControllerImpl extends AbstractPdfCounterController
     }
 
     @Override
-    protected void computeAndEnd() {
+    protected void doUntilCompletion() {
         try {
             agentManager.awaitCompletion();
             if (view() != null) {

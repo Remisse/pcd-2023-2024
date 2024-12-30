@@ -1,15 +1,15 @@
-package pcd.ass_single.part1.common;
+package pcd.ass_single.part1.common.flag;
 
 import pcd.ass_single.part1.common.lock.CloseableReentrantLock;
 
 import java.util.concurrent.locks.Condition;
 
-public class Flag {
+public class SuspendableFlag {
     private final CloseableReentrantLock lock = new CloseableReentrantLock();
     private final Condition awaitCondition = lock.newCondition();
     private boolean shouldAwait = false;
 
-    public void tryAwait() {
+    public void checkIn() {
         try (var ignored = lock.lockAsResource()){
             while (shouldAwait) {
                 awaitCondition.await();
@@ -19,13 +19,7 @@ public class Flag {
         }
     }
 
-    public boolean shouldAwait() {
-        try (var ignored = lock.lockAsResource()) {
-            return shouldAwait;
-        }
-    }
-
-    public void setToAwait() {
+    public void set() {
         try (var ignored = lock.lockAsResource()) {
             shouldAwait = true;
         }

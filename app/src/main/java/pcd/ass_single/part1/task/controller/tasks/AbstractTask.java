@@ -1,20 +1,20 @@
 package pcd.ass_single.part1.task.controller.tasks;
 
-import pcd.ass_single.part1.common.Flag;
+import pcd.ass_single.part1.common.flag.SuspendableFlag;
 import pcd.ass_single.part1.common.Logger;
 
 import java.util.concurrent.RecursiveTask;
 
 public abstract class AbstractTask<V> extends RecursiveTask<V> {
-    private final Flag suspendFlag;
+    private final SuspendableFlag suspendFlag;
 
-    public AbstractTask(final Flag suspendFlag) {
+    public AbstractTask(final SuspendableFlag suspendFlag) {
         this.suspendFlag = suspendFlag;
     }
 
     @Override
     protected final V compute() {
-        suspendFlag.tryAwait();
+        suspendFlag.checkIn();
         return computeAbstract();
     }
 

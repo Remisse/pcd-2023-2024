@@ -1,6 +1,7 @@
 package pcd.ass_single.part1.threads.controller.agents;
 
 import pcd.ass_single.part1.common.*;
+import pcd.ass_single.part1.common.flag.SuspendableFlag;
 import pcd.ass_single.part1.common.model.Model;
 import pcd.ass_single.part1.threads.Bag;
 import pcd.ass_single.part1.threads.Either;
@@ -13,11 +14,11 @@ import java.util.regex.Pattern;
 public class PdfCounterAgent implements Runnable {
     private final Model model;
     private final Pattern regex;
-    private final Flag suspendFlag;
+    private final SuspendableFlag suspendFlag;
     private final Bag<Either<Directory, File>> bag;
 
     public PdfCounterAgent(final Model model, final Bag<Either<Directory, File>> bag, final Pattern regex,
-                           final Flag suspendFlag) {
+                           final SuspendableFlag suspendFlag) {
         this.model = model;
         this.regex = regex;
         this.suspendFlag = suspendFlag;
@@ -32,7 +33,7 @@ public class PdfCounterAgent implements Runnable {
                 return;
             }
             either.get().fold(this::actAsScanner, this::actAsParser);
-            suspendFlag.tryAwait();
+            suspendFlag.checkIn();
         }
     }
 

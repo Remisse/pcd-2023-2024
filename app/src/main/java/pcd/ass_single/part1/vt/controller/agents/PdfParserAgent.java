@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class PdfParserAgent implements Runnable {
-    private static final Logger LOGGER = Logger.get();
     private final File pdf;
     private final Pattern regex;
     private final VTFuture<Boolean> result;

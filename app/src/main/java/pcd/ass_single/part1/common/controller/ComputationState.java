@@ -4,7 +4,7 @@ import pcd.ass_single.part1.common.lock.CloseableReentrantLock;
 
 import java.util.Set;
 
-class ComputationState {
+public class ComputationState {
     private ComputationStateType current;
     private final CloseableReentrantLock lock = new CloseableReentrantLock();
 

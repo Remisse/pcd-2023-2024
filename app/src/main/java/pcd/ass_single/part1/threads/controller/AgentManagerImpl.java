@@ -2,6 +2,7 @@ package pcd.ass_single.part1.threads.controller;
 
 import pcd.ass_single.part1.common.*;
 import pcd.ass_single.part1.common.controller.AgentManager;
+import pcd.ass_single.part1.common.flag.SuspendableFlag;
 import pcd.ass_single.part1.common.model.Model;
 import pcd.ass_single.part1.threads.AtomicBag;
 import pcd.ass_single.part1.threads.Bag;
@@ -18,7 +19,7 @@ public class AgentManagerImpl implements AgentManager {
     private final int threadCount;
     private List<Thread> agents;
     private Bag<Either<Directory, File>> bag;
-    private final Flag suspendFlag = new Flag();
+    private final SuspendableFlag suspendFlag = new SuspendableFlag();
 
     public AgentManagerImpl(final Model model, final int threadCount) {
         this.model = model;
@@ -53,7 +54,7 @@ public class AgentManagerImpl implements AgentManager {
 
     @Override
     public void suspend() {
-        suspendFlag.setToAwait();
+        suspendFlag.set();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package pcd.ass_single.part1.task.controller.tasks;
 
 import pcd.ass_single.part1.common.Directory;
-import pcd.ass_single.part1.common.Flag;
+import pcd.ass_single.part1.common.flag.SuspendableFlag;
 import pcd.ass_single.part1.common.model.Model;
 
 import java.util.concurrent.ForkJoinTask;
@@ -11,9 +11,9 @@ public class DirectoryScanTask extends AbstractTask<Void> {
     private final Model model;
     private final Directory directory;
     private final Pattern regex;
-    private final Flag suspendFlag;
+    private final SuspendableFlag suspendFlag;
 
-    public DirectoryScanTask(final Model model, final Directory dir, final Pattern regex, final Flag suspendFlag) {
+    public DirectoryScanTask(final Model model, final Directory dir, final Pattern regex, final SuspendableFlag suspendFlag) {
         super(suspendFlag);
         this.model = model;
         directory = dir;

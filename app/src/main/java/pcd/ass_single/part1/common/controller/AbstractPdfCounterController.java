@@ -53,13 +53,13 @@ public abstract class AbstractPdfCounterController<V> implements PdfCounterContr
         }
         startComputation();
         setStateAndLog(ComputationStateType.RUNNING);
-        computeAndEnd();
+        doUntilCompletion();
         setStateAndLog(ComputationStateType.IDLE);
     }
 
     protected abstract void startComputation();
 
-    protected abstract void computeAndEnd();
+    protected abstract void doUntilCompletion();
 
     protected void stopComputationTemplate() {
         state.compareThenAct(Set.of(ComputationStateType.RUNNING, ComputationStateType.SUSPENDED), () ->  {
@@ -106,7 +106,11 @@ public abstract class AbstractPdfCounterController<V> implements PdfCounterContr
         return searchTerm;
     }
 
-    private void setStateAndLog(ComputationStateType newState) {
+    protected final ComputationState state() {
+        return state;
+    }
+
+    protected void setStateAndLog(ComputationStateType newState) {
         state.update(newState);
         debugLog(newState.name());
     }

@@ -1,7 +1,7 @@
 package pcd.ass_single.part1.task.controller.tasks;
 
 import pcd.ass_single.part1.common.Parsing;
-import pcd.ass_single.part1.common.Flag;
+import pcd.ass_single.part1.common.flag.SuspendableFlag;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ public class PdfParseTask extends AbstractTask<Boolean> {
     private final File pdf;
     private final Pattern regex;
 
-    public PdfParseTask(final File pdf, final Pattern regex, final Flag suspendFlag) {
+    public PdfParseTask(final File pdf, final Pattern regex, final SuspendableFlag suspendFlag) {
         super(suspendFlag);
         this.pdf = pdf;
         this.regex = regex;

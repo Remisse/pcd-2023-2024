@@ -21,9 +21,15 @@ public class Logger {
     }
 
     public void log(String caller, String msg) {
-        String callerName = Strings.isNullOrEmpty(caller) ? "" : "[" + caller + "] ";
+        var builder = new StringBuilder(32);
+        if (!Strings.isNullOrEmpty(caller)) {
+            builder.append("[")
+                    .append(caller)
+                    .append("] ");
+        }
+        builder.append(msg);
         try (var ignored = OUTPUT_LOCK.lockAsResource()) {
-            System.out.println(callerName + msg);
+            System.out.println(builder);
         }
     }
 

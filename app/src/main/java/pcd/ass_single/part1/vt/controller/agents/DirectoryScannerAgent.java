@@ -1,7 +1,8 @@
 package pcd.ass_single.part1.vt.controller.agents;
 
 import pcd.ass_single.part1.common.Directory;
-import pcd.ass_single.part1.common.Flag;
+import pcd.ass_single.part1.common.flag.AtomicFlag;
+import pcd.ass_single.part1.common.flag.SuspendableFlag;
 import pcd.ass_single.part1.common.Logger;
 import pcd.ass_single.part1.common.model.Model;
 import pcd.ass_single.part1.vt.controller.VTFuture;
@@ -10,7 +11,6 @@ import scala.Tuple2;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 public class DirectoryScannerAgent implements Runnable {
@@ -18,11 +18,11 @@ public class DirectoryScannerAgent implements Runnable {
     private final Directory dir;
     private final Pattern regex;
     private final Model model;
-    private final AtomicBoolean stopFlag;
-    private final Flag suspendFlag;
+    private final AtomicFlag stopFlag;
+    private final SuspendableFlag suspendFlag;
 
     public DirectoryScannerAgent(final Directory dir, final Pattern regex, final Model model,
-                                 final AtomicBoolean stopFlag, final Flag suspendFlag) {
+                                 final AtomicFlag stopFlag, final SuspendableFlag suspendFlag) {
         this.dir = dir;
         this.regex = regex;
         this.model = model;
@@ -32,8 +32,8 @@ public class DirectoryScannerAgent implements Runnable {
 
     @Override
     public void run() {
-        suspendFlag.tryAwait();
-        if (stopFlag.get()) {
+        suspendFlag.checkIn();
+        if (stopFlag.isSet()) {
             return;
         }
         try {

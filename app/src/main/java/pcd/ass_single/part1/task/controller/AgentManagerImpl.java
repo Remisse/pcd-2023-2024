@@ -1,7 +1,7 @@
 package pcd.ass_single.part1.task.controller;
 
 import pcd.ass_single.part1.common.Directory;
-import pcd.ass_single.part1.common.Flag;
+import pcd.ass_single.part1.common.flag.SuspendableFlag;
 import pcd.ass_single.part1.common.ModelObserver;
 import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.common.controller.AgentManager;
@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class AgentManagerImpl implements AgentManager {
     private final Model model;
     private final ConsumableModel<ModelState> consumableModel;
-    private final Flag suspendFlag = new Flag();
+    private final SuspendableFlag suspendFlag = new SuspendableFlag();
     private ScheduledExecutorService scheduledExecutor;
     private ForkJoinPool pool;
     private ForkJoinTask<Void> currentMainTask;
@@ -63,7 +63,7 @@ public class AgentManagerImpl implements AgentManager {
 
     @Override
     public void suspend() {
-        suspendFlag.setToAwait();
+        suspendFlag.set();
     }
 
     @Override
