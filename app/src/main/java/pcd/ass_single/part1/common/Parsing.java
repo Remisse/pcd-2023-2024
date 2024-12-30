@@ -14,6 +14,14 @@ public class Parsing {
         public boolean isError() {
             return error.isPresent();
         }
+
+        public boolean isNil() {
+            return document.isEmpty() && error.isEmpty();
+        }
+    }
+
+    public static PDFWrapper nilWrapper() {
+        return new PDFWrapper(Optional.empty(), Optional.empty());
     }
 
     private Parsing() {}
