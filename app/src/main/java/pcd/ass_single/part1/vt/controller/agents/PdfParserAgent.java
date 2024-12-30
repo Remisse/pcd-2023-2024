@@ -1,6 +1,5 @@
 package pcd.ass_single.part1.vt.controller.agents;
 
-import pcd.ass_single.part1.common.Logger;
 import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.vt.controller.VTFuture;
 

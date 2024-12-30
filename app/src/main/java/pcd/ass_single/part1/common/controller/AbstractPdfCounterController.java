@@ -45,9 +45,8 @@ public abstract class AbstractPdfCounterController<V> implements PdfCounterContr
     }
 
     protected void startComputationTemplate() {
-        state.compareThenAct(Set.of(ComputationStateType.IDLE), () -> {
-            setStateAndLog(ComputationStateType.STARTING);
-        });
+        state.compareThenAct(Set.of(ComputationStateType.IDLE), () ->
+                setStateAndLog(ComputationStateType.STARTING));
         if (state.get() != ComputationStateType.STARTING) {
             return;
         }
