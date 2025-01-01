@@ -7,24 +7,24 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import pcd.ass_single.part1.common.Directory;
 import pcd.ass_single.part1.common.flag.AtomicFlag;
+import pcd.ass_single.part1.common.flag.SuspendableFlag;
 import pcd.ass_single.part1.event.LocalEventBus;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ScannerVerticle extends AbstractVerticle {
     private static final EventBus BUS = LocalEventBus.get();
     private final Directory startingDirectory;
     private final AtomicFlag stopFlag;
-    private final Set<String> alreadyPublishedPdfs = new HashSet<>();
+    private final SuspendableFlag suspendFlag;
     private boolean firstTime = true;
     private int resultsSent;
 
-    public ScannerVerticle(final Directory startingDirectory, final AtomicFlag stopFlag) {
+    public ScannerVerticle(final Directory startingDirectory, final AtomicFlag stopFlag, final SuspendableFlag suspendFlag) {
         this.startingDirectory = startingDirectory;
         this.stopFlag = stopFlag;
+        this.suspendFlag = suspendFlag;
     }
 
     @Override
@@ -41,13 +41,13 @@ public class ScannerVerticle extends AbstractVerticle {
     }
 
     private Future<Void> scan(final Directory directory) {
+        suspendFlag.checkIn();
         if (stopFlag.isSet()) {
             return Future.succeededFuture(null);
         }
         var pdfFutures = asyncGetPdfs(directory)
                 .map(l -> l.stream()
                         .map(File::getPath)
-                        .filter(alreadyPublishedPdfs::add)
                         .toList())
                 .onSuccess(l -> {
                     if (!l.isEmpty()) {

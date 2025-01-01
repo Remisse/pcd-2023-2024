@@ -11,6 +11,7 @@ import io.vertx.core.json.JsonObject;
 import pcd.ass_single.part1.common.Logger;
 import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.common.flag.AtomicFlag;
+import pcd.ass_single.part1.common.flag.SuspendableFlag;
 import pcd.ass_single.part1.event.LocalEventBus;
 
 import java.io.File;
@@ -23,6 +24,7 @@ public class ParserVerticle extends AbstractVerticle {
     private static final Logger LOGGER = Logger.get();
     private final Pattern regex;
     private final AtomicFlag stopFlag;
+    private final SuspendableFlag suspendFlag;
     private MessageConsumer<Object> scanOverConsumer;
     private MessageConsumer<Object> toParseConsumer;
     private int resultsSentByScanner = -1;
@@ -31,9 +33,10 @@ public class ParserVerticle extends AbstractVerticle {
     private int parsed = 0;
     private int found = 0;
 
-    public ParserVerticle(final Pattern regex, final AtomicFlag stopFlag) {
+    public ParserVerticle(final Pattern regex, final AtomicFlag stopFlag, final SuspendableFlag suspendFlag) {
         this.regex = regex;
         this.stopFlag = stopFlag;
+        this.suspendFlag = suspendFlag;
     }
 
     @Override
@@ -52,7 +55,6 @@ public class ParserVerticle extends AbstractVerticle {
                     .map(CompositeFuture::list)
                     .map(this::asyncCount)
                     .onSuccess(res -> getVertx().executeBlocking(() -> {
-                        debugLog("consumed");
                         BUS.publish("result", createResult());
                         resultsConsumed++;
                         if (resultsConsumed == resultsSentByScanner) {
@@ -72,6 +74,10 @@ public class ParserVerticle extends AbstractVerticle {
 
     private Future<Parsing.PDFWrapper> asyncLoadPdf(final String path) {
         return getVertx().executeBlocking(() -> {
+            suspendFlag.checkIn();
+            if (stopFlag.isSet()) {
+                return Parsing.nilWrapper();
+            }
             try {
                 total++;
                 return Parsing.loadPdf(new File(path));
@@ -84,8 +90,9 @@ public class ParserVerticle extends AbstractVerticle {
 
     private Future<Boolean> asyncDoesPdfMatch(final Parsing.PDFWrapper pdf) {
         return getVertx().executeBlocking(() -> {
+            suspendFlag.checkIn();
             pdf.error().ifPresent(this::debugLog);
-            if (pdf.isNil() || pdf.isError()) {
+            if (pdf.isNil() || pdf.isError() || stopFlag.isSet()) {
                 return false;
             }
             try {
@@ -99,6 +106,10 @@ public class ParserVerticle extends AbstractVerticle {
 
     private Future<Long> asyncCount(final List<?> list) {
         return getVertx().executeBlocking(() -> {
+            suspendFlag.checkIn();
+            if (stopFlag.isSet()) {
+                return 0L;
+            }
             var count = list.stream()
                     .peek(ignored -> parsed++)
                     .filter(r -> (boolean) r)

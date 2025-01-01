@@ -6,8 +6,10 @@ import pcd.ass_single.part1.common.Parsing;
 import pcd.ass_single.part1.common.controller.AbstractPdfCounterController;
 import pcd.ass_single.part1.common.controller.ComputationStateType;
 import pcd.ass_single.part1.common.flag.AtomicFlag;
+import pcd.ass_single.part1.common.flag.SuspendableFlag;
 import pcd.ass_single.part1.common.view.PdfCounterView;
 import pcd.ass_single.part1.event.LocalEventBus;
+import pcd.ass_single.part1.event.verticle.InputHandler;
 import pcd.ass_single.part1.event.verticle.ParserVerticle;
 import pcd.ass_single.part1.event.verticle.ScannerVerticle;
 
@@ -18,6 +20,7 @@ public class EventBasedController extends AbstractPdfCounterController<PdfCounte
     private static final EventBus BUS = LocalEventBus.get();
     private final Vertx vertx;
     private final AtomicFlag stopFlag = new AtomicFlag();
+    private final SuspendableFlag suspendFlag = new SuspendableFlag();
     private ScannerVerticle scanner;
     private ParserVerticle parser;
 
@@ -51,28 +54,29 @@ public class EventBasedController extends AbstractPdfCounterController<PdfCounte
     @Override
     protected void startComputation() {
         stopFlag.reset();
-        scanner = new ScannerVerticle(searchDirectory(), stopFlag);
-        parser = new ParserVerticle(Parsing.createRegexOutOfSearchTerm(searchTerm()), stopFlag);
+        suspendFlag.reset();
+        scanner = new ScannerVerticle(searchDirectory(), stopFlag, suspendFlag);
+        parser = new ParserVerticle(Parsing.createRegexOutOfSearchTerm(searchTerm()), stopFlag, suspendFlag);
         deployVerticles();
     }
 
     @Override
     protected void stopComputation() {
         stopFlag.set();
+        suspendFlag.reset();
         undeployVerticles();
     }
 
     @Override
     protected void suspendComputation() {
-        stopFlag.set();
-        undeployVerticles();
+        suspendFlag.set();
     }
 
     @Override
     protected void resumeComputation() {
-        stopFlag.reset();
-        deployVerticles();
+        suspendFlag.reset();
     }
+
     @Override
     protected void doUntilCompletion() {
     }
