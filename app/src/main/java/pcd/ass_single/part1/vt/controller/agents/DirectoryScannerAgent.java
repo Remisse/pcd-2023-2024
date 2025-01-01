@@ -47,17 +47,12 @@ public class DirectoryScannerAgent implements Runnable {
                         .map(this::createParser)
                         .toList();
                 for (var task : parsers) {
-                    task._1().join();
-                }
-                int found = 0;
-                for (var tuple : parsers) {
-                    if (tuple._2().isError()) {
-                        LOGGER.debugLog(tuple._2().getError());
-                    } else if (tuple._2().resultNow()) {
-                        found++;
+                    if (task != null) {
+                        task._1().join();
                     }
                 }
                 model.incrementParsed(parsers.size());
+                int found = countMatchingPdfs(parsers.stream().map(Tuple2::_2).toList());
                 if (found > 0) {
                     model.incrementFound(found);
                 }
@@ -75,8 +70,24 @@ public class DirectoryScannerAgent implements Runnable {
     }
 
     private Tuple2<Thread, VTFuture<Boolean>> createParser(File pdf) {
+        suspendFlag.checkIn();
+        if (stopFlag.isSet()) {
+            return null;
+        }
         VTFuture<Boolean> future = new VTFutureImpl<>();
         var vt = Thread.ofVirtual().start(new PdfParserAgent(pdf, regex, future));
         return new Tuple2<>(vt, future);
+    }
+
+    private static int countMatchingPdfs(final List<VTFuture<Boolean>> futures) {
+        int found = 0;
+        for (var future : futures) {
+            if (future.isError()) {
+                LOGGER.debugLog(future.getError());
+            } else if (future.resultNow()) {
+                found++;
+            }
+        }
+        return found;
     }
 }
