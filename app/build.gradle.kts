@@ -32,7 +32,7 @@ dependencies {
     implementation("io.vertx:vertx-web-client:$vertxVer")
        
     /* module 2.2 -- RxJava */
-    implementation("io.reactivex.rxjava3:rxjava:3.1.8")
+    implementation("io.reactivex.rxjava3:rxjava:3.1.10")
 
     /* module 3.1 - actors - akka*/
     implementation(platform("com.typesafe.akka:akka-bom_2.13:2.8.2"))
