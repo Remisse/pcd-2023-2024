@@ -54,14 +54,7 @@ public class ParserVerticle extends AbstractVerticle {
                             .toList())
                     .map(CompositeFuture::list)
                     .map(this::asyncCount)
-                    .onSuccess(res -> getVertx().executeBlocking(() -> {
-                        BUS.publish("result", createResult());
-                        resultsConsumed++;
-                        if (resultsConsumed == resultsSentByScanner) {
-                            startPromise.complete();
-                        }
-                        return null;
-                    }));
+                    .onSuccess(ignored -> asyncFinalize(startPromise));
         });
     }
 
@@ -116,6 +109,17 @@ public class ParserVerticle extends AbstractVerticle {
                     .count();
             found += (int) count;
             return count;
+        });
+    }
+
+    private void asyncFinalize(final Promise<Void> promise) {
+        getVertx().executeBlocking(() -> {
+            BUS.publish("result", createResult());
+            resultsConsumed++;
+            if (resultsConsumed == resultsSentByScanner) {
+                promise.complete();
+            }
+            return null;
         });
     }
 

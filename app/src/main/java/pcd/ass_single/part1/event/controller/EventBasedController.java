@@ -1,5 +1,6 @@
 package pcd.ass_single.part1.event.controller;
 
+import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import pcd.ass_single.part1.common.Parsing;
@@ -7,7 +8,6 @@ import pcd.ass_single.part1.common.controller.AbstractPdfCounterController;
 import pcd.ass_single.part1.common.controller.ComputationStateType;
 import pcd.ass_single.part1.common.flag.AtomicFlag;
 import pcd.ass_single.part1.common.flag.SuspendableFlag;
-import pcd.ass_single.part1.common.view.PdfCounterView;
 import pcd.ass_single.part1.event.LocalEventBus;
 import pcd.ass_single.part1.event.verticle.InputHandler;
 import pcd.ass_single.part1.event.verticle.ParserVerticle;
@@ -16,7 +16,7 @@ import pcd.ass_single.part1.event.verticle.ScannerVerticle;
 import java.util.List;
 import java.util.Set;
 
-public class EventBasedController extends AbstractPdfCounterController<PdfCounterView> {
+public class EventBasedController extends AbstractPdfCounterController<Verticle> {
     private static final EventBus BUS = LocalEventBus.get();
     private final Vertx vertx;
     private final AtomicFlag stopFlag = new AtomicFlag();
@@ -93,5 +93,11 @@ public class EventBasedController extends AbstractPdfCounterController<PdfCounte
     private void undeployVerticles() {
         List.of(scanner.deploymentID(), parser.deploymentID())
                 .forEach(vertx::undeploy);
+    }
+
+    @Override
+    public void setView(Verticle view) {
+        super.setView(view);
+        vertx.deployVerticle(view);
     }
 }

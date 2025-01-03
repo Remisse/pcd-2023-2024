@@ -14,14 +14,14 @@ import java.util.List;
 
 public class PdfCounterSwingView extends JFrame implements PdfCounterView, ActionListener {
     private static final Logger LOGGER = Logger.get();
-    private final PdfCounterController<PdfCounterView> controller;
+    private final PdfCounterController<?> controller;
     private final JTextField totalPdfsCount;
     private final JTextField parsedPdfsCount;
     private final JTextField foundPdfsCount;
     private final JTextField directoryField;
     private final JTextField searchTermField;
 
-    public PdfCounterSwingView(PdfCounterController<PdfCounterView> controller) {
+    public PdfCounterSwingView(PdfCounterController<?> controller) {
         super("PDF Counter");
         this.controller = controller;
 

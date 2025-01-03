@@ -6,12 +6,12 @@ import pcd.ass_single.part1.common.view.PdfCounterView;
 
 public class PdfCounterCLIView implements PdfCounterView {
     private static final Logger LOGGER = Logger.get();
-    private final PdfCounterController<PdfCounterView> controller;
+    private final PdfCounterController<?> controller;
     private int total = 0;
     private int parsed = 0;
     private int found = 0;
 
-    public PdfCounterCLIView(final PdfCounterController<PdfCounterView> controller) {
+    public PdfCounterCLIView(final PdfCounterController<?> controller) {
         this.controller = controller;
     }
 
